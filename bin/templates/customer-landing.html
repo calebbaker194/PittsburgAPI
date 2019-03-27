@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script
+  		src="http://code.jquery.com/jquery-3.3.1.js"
+ 		integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+  		crossorigin="anonymous">
+    </script>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}"/>
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+</head>
+
+<body>
+
+	<!--Navigation bar-->
+	<div id="nav-placeholder">
+
+	</div>
+
+	<script>
+	$(function(){
+	  $("#nav-placeholder").load("/navbar-top.html");
+	});
+	</script>
+	<!--end of Navigation bar-->
+
+	<div class="parallax"><div id="trans-logo"><img th:src="@{/images/steellogo-transparent.png}"></div></div>
+
+</body>
