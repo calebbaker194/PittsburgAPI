@@ -33,6 +33,12 @@
 *::after {
   box-sizing: border-box; }
 
+.c-mid {
+	width: 70%;
+	margin-left: 15%;
+	margine-right: 15%;
+}
+
 html {
   font-family: sans-serif;
   line-height: 1.15;

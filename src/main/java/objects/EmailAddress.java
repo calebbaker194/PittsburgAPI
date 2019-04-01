@@ -1,6 +1,7 @@
 package objects;
 
 public class EmailAddress {
+
 	public static final String pattern = ".+@.+\\..+";
 	private String emailAddress = null;
 	
@@ -24,4 +25,10 @@ public class EmailAddress {
 	{
 		return emailAddress;
 	}
+	
+	public boolean Equals(EmailAddress e)
+	{
+		return emailAddress.equals(e.getEmailAddress());
+	}
+
 }
