@@ -7,8 +7,10 @@
  		integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
   		crossorigin="anonymous">
     </script>
+    <script src="/js/sidebar.js"></script>
     <link rel="stylesheet" th:href="@{/css/bootstrap.css}"/>
-    <link rel="stylesheet" th:href="@{/css/customer.css}">
+    <link rel="stylesheet" th:href="@{/css/customer.css}"/>
+    <link rel="stylesheet" th:href="@{/css/table.css}"/>
 </head>
 
 <body>
@@ -24,4 +26,84 @@
 	});
 	</script>
 	<!--end of Navigation bar-->
+	
+	<div class="c-page">
+		<div id="vue">
+	    	<div class="filter" v-for="filter in filters">
+	   			{{ filter.name }}
+	      		<span v-if="filter.type=='select'">
+	        	<select>
+	          		<option v-for="option in filter.options">{{option}}</option>
+	       		</select>
+	      		</span>
+	      		<span v-else><input type="text"></span>
+	    	</div>
+    		<div class="clean"></div>
+   			<hr>
+    		<div>
+				<table>
+			    	<tr>
+			    		<th v-for="column in columns">
+			    			{{column}}
+			   			<th>
+					</tr>
+			 		<tr v-for="itemline in tabledata">
+			 			<td v-for="item in itemline" v-bind:class="item.class">
+			    			{{item.data}}
+						</td>
+    				</tr>
+				</table>
+    		</div>
+		</div>
+	</div>
+	
+	<div id="mySidenav" class="sidenav bg-primary">
+		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+		<a href="#">Open Orders</a>
+		<a href="#">Credit</a>
+		<a href="#">Items</a>
+		<a href="#">Contact</a>
+	</div>
 </body>
+<script>
+
+/*
+ * VUE WILL BE USED FOR DISPLAYING OPEN ORDERS, ITEMS, CREDIT, AND CONTACTS.
+ * IT MUST BE FORMATTED AS FOLLOWS
+ 
+ 
+ var vm = new Vue({
+	  el: '#vue-instance',
+	  data: {
+	    filters: [
+	      {name: 'MacBook Air', type: "select", options: [1,2,3,4]},
+	      {name: 'MacBook Pro', type: "text"},
+	      {name: 'Lenovo W530', type: "select", options: [1,2,3,4]},
+	      {name: 'Acer Aspire One', type: "select", options: [1,2,3,4]}
+	    ],
+	    columns: [
+	    	"Item Number", "Description", "Price", "QOH"
+	    ],
+	    tabledata: [
+	      [{data:"SS1234", class:"left"},{data:"THIS IS A FAKE ITEM", class:"left"},{data:97.24, class:"right"},{data:54, class:"right"}]
+	    ]
+	  }
+	});
+ 
+ 
+ */
+ var vm = new Vue({
+	  el: '#vue',
+	  created: function() {
+		  
+	  }
+	  data: {
+	    filters: [],
+	    columns: [],
+	    tabledata: []
+	  },
+	  methods: {
+		  
+	  }
+	});
+</script>

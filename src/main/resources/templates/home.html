@@ -7,8 +7,9 @@
  		integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
   		crossorigin="anonymous">
     </script>
-    <link rel="stylesheet" th:href="@{/css/bootstrap.css}"/>
     <link rel="stylesheet" th:href="@{/css/home.css}">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}"/>
+    <script src="/js/parallax.js"></script>
 </head>
 
 <body>
@@ -24,7 +25,145 @@
 	});
 	</script>
 	<!--end of Navigation bar-->
+	<div class="c-indent">
+		<div class="parallax-window"  data-parallax="scroll" data-image-src="/images/treadplate-background.png">
+			<br>
+			<br>
+			<br>
+			<div class="row justify-content-center">
+				<div class="col-8">
+					<div id="c-auto">
+						<img class="c-center" id="overparalax" width="1064px" th:src="@{/images/steellogo-transparent.png}">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<br>
+		
+		<div class="white-bar">
+		    <br>
+			<div class="c-mid">
+				<div class="m10w">
+					<h2 class="s-component-content s-font-title">
+						<p><strong>Who We Are</strong></p>
+					</h2>
+					<h4 class="s-component-content s-font-heading">
+					<p class="blueish" style="font-size: 100%;"><u>Hours</u></p><p class="blueish" style="font-size: 100%;">Monday-Friday: 8:00 a.m. <strong>-</strong> 5:00 p.m. (CST)</p><p>&nbsp;</p>
+					</h4>
+					<div class="s-component s-text">
+						<div class="s-component-content s-font-body">
+						<p class="just">
+						<strong>Pittsburg Steel is a steel service center in North East Texas. We primarily serve manufacturers in the region with Steel Sheet and other flatroll products. Capabilities include Precision Roller Leveling up to 3/8 x 72" wide as well as various shearing, blanking and other steel processing equipment.</strong>
+						<br><br>&nbsp;
+						</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<br>
+			<br>
+			<br>
+		</div>
+		
+		<div class="parallax-window"  data-parallax="scroll" data-image-src="/images/building-front.png">
+			<div class="tint">
+				<br>
+				<br>
+				<br>
+				<div class="c-mid">
+					<div class="white-bar">
+						<h3 class="whiteword">Directions</h3>
+						<h5 class="whiteword bigger">
+						Typical loading/unloading hours are 7:00 am through 4:00 pm. No appointments are necessary. The front lot connects with FM 557 and there is ample space for overnight parking.
+						<br>
+						<br>
+						From the intersection of US 271 and FM 557 in Pittsburg, TX proceed exactly 3-1/2 miles east on FM 557. FM 557 is between the Herschel's Family Restaurant and the Cypress Bank on US 271.
+						<br>
+						<br>
+						Pittsburg Steel is a tan industrial building with green trim just outside of town as you proceed into the rural area on 271.
+						<br>
+						<br>
+						Watch the odometer. 3-1/2 miles from 271.
+						</h5>
+					</div>
+				</div>
+				<br>
+				<br>
+				<div class="c-mid">
+					<div id="map">
+						<a href="https://www.google.com/maps/place/Pittsburg+Steel/@32.9840512,-94.9080622,15.88z/data=!4m5!3m4!1s0x86360857f81e91ed:0x64a6138dace440e2!8m2!3d32.9842668!4d-94.9067098" >
+							<img src="/images/map.png"/>
+						</a>
+					</div>
+				</div>
+				<br>
+				<br>
+				<br>
+			</div>
+		</div>
+		
+		<div class="white-bar">
+			<br>
+			<br>
+			<div class="c-mid">
+				<h2>
+					New Customer Inquiry Form
+				</h2>
+				<br>
+				<h5 class="blueish">Please fill out the following form and we will respond as soon as possible.</h5>
+				<br>
+				<div class="center-form row justify-content-center">
+					<div class="col-3">
+						<div>
+							<div class="form-group">
+								<input type="text" class="form-control" placeholder="Name"/>
+							</div>
+							<div class="form-group" >
+								<input type="text" class="form-control" placeholder="Email"/>
+							</div>
+							<div class="form-group" >
+								<input type="text" class="form-control" placeholder="Phone"/>
+							</div>
+							<textarea type="text" class="form-control" placeholder="Message"></textarea>
+						</div>
+						<br>
+						<button class="btn btn-lg btn-dark" type="button">Submit</button>
+					</div>
+				</div>
+				<br>
+				<br>
+				<hr class="c-fade">
+				<br>
+				<h2>Connect With Us</h2>
+				<div id="icons">
+					<div class="row justify-content-center">
+						<div class="col-4">
+							<div class="row justify-content-center">
+								<img src="/images/phone-icon.png">
+							</div>
+							<div class="row justify-content-center">
+								<a href="tel:903-855-7515" target="_blank"><u>903-855-7515</u></a>
+							</div>
+						</div>
+						<div class="col-4">
+							<div class="row justify-content-center">
+								<img src="/images/email-icon.png">
+							</div>
+							<div class="row justify-content-center">
+								<a href="mailto:sales@pittsburgsteel.com" target="_blank"><u>sales@<wbr>pittsburgsteel.com</u></a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="bg-dark">
+		<br>
+		<br>
+		</div>
+	</div>
 
-	<div class="parallax"><div id="trans-logo"><img th:src="@{/images/steellogo-transparent.png}"></div></div>
+	
 
 </body>

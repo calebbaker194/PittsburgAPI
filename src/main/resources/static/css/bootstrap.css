@@ -34,10 +34,62 @@
   box-sizing: border-box; }
 
 .c-mid {
-	width: 70%;
-	margin-left: 15%;
-	margine-right: 15%;
+	width: 60%;
+	text-align: center;
+	margin: auto;
 }
+
+.c-page {
+	width: auto;
+	margin-left: 250px;
+	margin-right: 10%;
+	margin-top: 80px; 
+	padding: 3.0rem;
+}
+
+.c-left {
+	text-align: left;
+}
+
+.c-right {
+	text-align: right;
+}
+
+.m10w {
+	width: 90%;
+	margin: auto;
+}
+
+/* The side navigation menu */
+.sidenav {
+  height: 100%; /* 100% Full-height */
+  width: 0; /* 0 width - change this with JavaScript */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Stay on top */
+  top: 75px; /* Stay at the top */
+  left: 0;
+  overflow-x: hidden; /* Disable horizontal scroll */
+  padding-top: 60px; /* Place content 60px from the top */
+  transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+}
+
+
+/* Position and style the close button (top right corner) */
+.sidenav .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+}
+
+
+/* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+
 
 html {
   font-family: sans-serif;
@@ -136,6 +188,24 @@ a {
   a:hover {
     color: #121416;
     text-decoration: underline; }
+    
+    
+/* The navigation menu links */
+.sidenav a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+}
+
+/* When you mouse over the navigation links, change their color */
+.sidenav a:hover {
+  color: #f1f1f1;
+  text-decoration: none;
+}
+
 
 a:not([href]):not([tabindex]) {
   color: inherit;
@@ -1380,7 +1450,7 @@ select.form-control[size], select.form-control[multiple] {
   height: auto; }
 
 textarea.form-control {
-  height: auto; }
+  height: 120px; }
 
 .form-group {
   margin-bottom: 1rem; }
@@ -2924,9 +2994,12 @@ input[type="button"].btn-block {
   display: block; }
 
 .navbar {
-  position: relative;
+  position: fixed;
+  top: 0;
+  z-index: 10;
+  left: 0;
+  right: 0;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem 1rem; }
@@ -2973,9 +3046,10 @@ input[type="button"].btn-block {
   padding-bottom: 0.5rem; }
 
 .navbar-collapse {
+  margin-top: 13px;
   flex-basis: 100%;
   flex-grow: 1;
-  align-items: center; }
+}
 
 .navbar-toggler {
   padding: 0.25rem 0.75rem;
@@ -3119,7 +3193,8 @@ input[type="button"].btn-block {
     flex-wrap: nowrap; }
   .navbar-expand .navbar-collapse {
     display: flex !important;
-    flex-basis: auto; }
+    flex-basis: auto;
+    margin: auto; }
   .navbar-expand .navbar-toggler {
     display: none; }
 
@@ -7004,7 +7079,7 @@ a.text-dark:hover, a.text-dark:focus {
   .container {
     min-width: 992px !important; }
   .navbar {
-    display: none; }
+    display: inline-block; }
   .badge {
     border: 1px solid #000; }
   .table {
