@@ -30,5 +30,14 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.boot:spring-boot-starter-thymeleaf")
     compile("org.springframework.boot:spring-boot-devtools")
+    
+    //Postgresql Drivers
+    // https://mvnrepository.com/artifact/postgresql/postgresql
+    compile group: 'postgresql', name: 'postgresql', version: '9.0-801.jdbc4'
+    
+    //Dependency for javamail
+    // https://mvnrepository.com/artifact/javax.mail/javax.mail-api
+	compile group: "com.sun.mail", name: "javax.mail", version: "1.6.2"
+    
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }

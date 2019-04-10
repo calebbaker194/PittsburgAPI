@@ -65,7 +65,7 @@ public class ResultList extends ArrayList<HashMap<String,Object>>{
 	 */
 	public void addLevel(String query,String field)
 	{
-		ResultList r = SQLEngine.executeDBQuery(query);
+		ResultList r = SQL.executeQuery(query);
 		
 		for(HashMap<String, Object> row: this)
 		{

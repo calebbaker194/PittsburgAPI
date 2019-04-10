@@ -4,11 +4,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
 
 import javax.security.auth.login.FailedLoginException;
 
-public class SQLEngine {
+public class SQL {
 	
 	public static HashMap<String,Integer> flagMap = new HashMap<String,Integer>();
 	
@@ -44,22 +43,22 @@ public class SQLEngine {
 		return "0";
 	}
 	
-	public static ResultList executeDBQuery(String query)
+	public static ResultList executeQuery(String query)
 	{
 		int flag = 0;
 		
 		String function = query.contains(" ") ? query.split(" ")[0].toUpperCase() : query.toUpperCase();
 		
-		flag = SQLEngine.flagMap.get(function) != null ? SQLEngine.flagMap.get(function) : 0;
+		flag = SQL.flagMap.get(function) != null ? SQL.flagMap.get(function) : 0;
 		
 		
-		return executeDBQuery(query,flag);
+		return executeQuery(query,flag);
 	}
 	
 	/*
 	 *Execute a query. the flag currently states if you want to return generated keys 
 	 */
-	public static ResultList executeDBQuery(String query,int flag)
+	public static ResultList executeQuery(String query,int flag)
 	{
 		Connection dbConnection=null;
 		
@@ -131,13 +130,13 @@ public class SQLEngine {
 		return password;
 	}
 	public static void setPassword(String password) {
-		SQLEngine.password = password;
+		SQL.password = password;
 	}
 	public static String getUsername() {
 		return username;
 	}
 	public static void setUsername(String username) {
-		SQLEngine.username = username;
+		SQL.username = username;
 	}
 	/**
 	 * Single field query. made for getting one field using an id. 
@@ -147,7 +146,7 @@ public class SQLEngine {
 	 */
 	public static Object SFQ(String query)
 	{
-		ResultList r = executeDBQuery(query);
+		ResultList r = executeQuery(query);
 		try
 		{
 			return r.get(r.get(0).keySet().iterator().next());

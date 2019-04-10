@@ -1,5 +1,7 @@
 package xtuple;
 
+import java.util.HashMap;
+
 public class XItem {
 	
 	private int id;
@@ -25,6 +27,78 @@ public class XItem {
 		
 	}
 	
+	public XItem(HashMap<String, Object> item)
+	{
+		if(item.containsKey("item_id"))
+		{
+			setId((int) item.get("item_id"));
+		}
+		if(item.containsKey("item_number"))
+		{
+			setNumber((String) item.get("item_number"));
+		}
+		if(item.containsKey("item_descrip1"))
+		{
+			setDescrip1((String) item.get("item_descrip1"));
+		}
+		if(item.containsKey("item_descrip2"))
+		{
+			setDescrip2((String) item.get("item_descrip2"));
+		}
+		if(item.containsKey("item_classcode_id"))
+		{
+			setClasscode_id((int) item.get("item_classcode_id"));
+		}
+		if(item.containsKey("item_comments"))
+		{
+			setComments((String) item.get("item_comments"));
+		}
+		if(item.containsKey("item_isSold"))
+		{
+			setSold((Boolean) item.get("item_isSold"));
+		}
+		if(item.containsKey("item_isFractional"))
+		{
+			setFractional((Boolean) item.get("item_isFractional"));
+		}
+		if(item.containsKey("item_isActive"))
+		{
+			setActive((Boolean) item.get("item_isActive"));
+		}
+		if(item.containsKey("item_type"))
+		{
+			setType((char) item.get("item_type"));
+		}
+		if(item.containsKey("item_prodweight"))
+		{
+			setProdweight((float) item.get("item_prodweight"));
+		}
+		if(item.containsKey("item_prodcat_id"))
+		{
+			setProdcat_id((int) item.get("item_prodcat_id"));
+		}
+		if(item.containsKey("item_listprice"))
+		{
+			setListprice((float) item.get("item_listprice"));
+		}
+		if(item.containsKey("extdescrip"))
+		{
+			setExtdescrip((String) item.get("extdescrip"));
+		}
+		if(item.containsKey("upccode"))
+		{
+			setUpccode((String) item.get("upccode"));
+		}
+		if(item.containsKey("inv_uom_id"))
+		{
+			setInv_uom_id((int) item.get("inv_uom_id"));
+		}
+		if(item.containsKey("price_uom_id"))
+		{
+			setPrice_uom_id((int) item.get("price_uom_id"));
+		}
+	}
+
 	public int getId()
 	{
 		return id;
