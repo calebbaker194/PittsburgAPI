@@ -39,6 +39,10 @@
 	margin: auto;
 }
 
+.sidenav .active {
+	color: #FFFFFF;
+}
+
 .c-page {
 	width: auto;
 	margin-left: 250px;
@@ -47,12 +51,16 @@
 	padding: 3.0rem;
 }
 
-.c-left {
+.c-leftalign {
 	text-align: left;
 }
 
-.c-right {
+.c-rightalign {
 	text-align: right;
+}
+
+.c-centeralign {
+	text-align: center;
 }
 
 .m10w {
@@ -1105,7 +1113,7 @@ pre {
   color: #212529; }
   .table th,
   .table td {
-    padding: 0.75rem;
+    padding: 5px;
     vertical-align: top;
     border-top: 1px solid #dee2e6; }
   .table thead th {
@@ -2938,11 +2946,12 @@ input[type="button"].btn-block {
 
 .nav-link {
   display: block;
+  font-size: 1.25rem;
   padding: 0.5rem 1rem; }
   .nav-link:hover, .nav-link:focus {
     text-decoration: none; }
   .nav-link.disabled {
-    color: #6c757d;
+    color: #FFF;
     pointer-events: none;
     cursor: default; }
 
@@ -3238,7 +3247,7 @@ input[type="button"].btn-block {
 .navbar-dark .navbar-nav .nav-link {
   color: rgba(255, 255, 255, 0.5); }
   .navbar-dark .navbar-nav .nav-link:hover, .navbar-dark .navbar-nav .nav-link:focus {
-    color: rgba(255, 255, 255, 0.75); }
+    color: rgba(255, 255, 255, 0.95); }
   .navbar-dark .navbar-nav .nav-link.disabled {
     color: rgba(255, 255, 255, 0.25); }
 
@@ -7100,3 +7109,4 @@ a.text-dark:hover, a.text-dark:focus {
   .table .thead-dark th {
     color: inherit;
     border-color: #dee2e6; } }
+

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import helpers.DataTableRequest;
 import helpers.ResultList;
 import helpers.SQL;
 import table.Page;
@@ -51,20 +52,68 @@ public class ItemController {
 	{
 		ArrayList<XItem> items = new ArrayList<XItem>();
 		
-		ResultList r = SQL.executeQuery("SELECT * FROM item LIMIT "+itempage.getSize()+" OFFSET" + itempage.getOffset());
+		
+		
+		ResultList r = SQL.executeQuery("SELECT * FROM item LIMIT "+itempage.getLength()+" OFFSET " + itempage.getStart());
+		
+		for(HashMap<String,Object> item : r)
+		{
+			items.add(new XItem(item));
+		}
+		return items.toArray(new XItem[0]);
+	}
+	
+	public static int getItemCount()
+	{
+		Long l = (Long)SQL.SFQ("SELECT Count(item_id) FROM item");
+		return (l.intValue());
+	}
+	
+	public static int getItemCount(String search)
+	{
+		Long l = (Long)SQL.SFQ("SELECT Count(item_id) FROM item WHERE item_number || item_descrip1 LIKE '%"+search+"%'");
+		return (l.intValue());
+	}
+
+
+	public static XItem[] getItems(DataTableRequest dr)
+	{
+		ArrayList<XItem> items = new ArrayList<XItem>();
+		
+		String sql = "SELECT * FROM item\n";
+		
+		sql += " WHERE item_number || item_descrip1 || item_listprice LIKE '%"+ dr.getSearch().get("value") +"%'\n ORDER BY ";
+			
+		for(HashMap<String,String> order : dr.getOrder())
+		{
+			switch(Integer.parseInt(order.get("column")))
+			{
+			case 0:
+				sql += "item_number "+ order.get("dir").toUpperCase() +", ";
+				break;
+			case 1:
+				sql += "item_descrip1 "+ order.get("dir").toUpperCase() +", ";
+				break;
+			case 2:
+				sql += "item_listprice "+ order.get("dir").toUpperCase() +", ";
+				break;
+			case 3:
+				sql += "item_inv_uom_id "+ order.get("dir").toUpperCase() +", ";
+				break;
+			}
+		}
+		sql = sql.substring(0, sql.length()-2);
+			
+		sql+= " LIMIT "+dr.getLength() + " OFFSET " + dr.getStart();
+		
+		System.out.println(sql);
+		ResultList r = SQL.executeQuery(sql);
 		
 		for(HashMap<String,Object> item : r)
 		{
 			items.add(new XItem(item));
 		}
 		
-		return (XItem[]) items.toArray();
+		return items.toArray(new XItem[0]);
 	}
-	
-	@RequestMapping(path = "/item/get-item-pages", method = RequestMethod.POST)
-	public static int getItemPageCount()
-	{
-		return 0;
-	}
-
 }

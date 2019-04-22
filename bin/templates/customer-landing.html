@@ -7,7 +7,9 @@
  		integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
   		crossorigin="anonymous">
     </script>
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
     <script src="/js/sidebar.js"></script>
+    <!-- <script src="/js/table.js"></script> -->
     <link rel="stylesheet" th:href="@{/css/bootstrap.css}"/>
     <link rel="stylesheet" th:href="@{/css/customer.css}"/>
     <link rel="stylesheet" th:href="@{/css/table.css}"/>
@@ -28,82 +30,174 @@
 	<!--end of Navigation bar-->
 	
 	<div class="c-page">
-		<div id="vue">
-	    	<div class="filter" v-for="filter in filters">
-	   			{{ filter.name }}
-	      		<span v-if="filter.type=='select'">
-	        	<select>
-	          		<option v-for="option in filter.options">{{option}}</option>
-	       		</select>
-	      		</span>
-	      		<span v-else><input type="text"></span>
-	    	</div>
-    		<div class="clean"></div>
-   			<hr>
-    		<div>
-				<table>
-			    	<tr>
-			    		<th v-for="column in columns">
-			    			{{column}}
-			   			<th>
-					</tr>
-			 		<tr v-for="itemline in tabledata">
-			 			<td v-for="item in itemline" v-bind:class="item.class">
-			    			{{item.data}}
-						</td>
-    				</tr>
-				</table>
-    		</div>
-		</div>
+		<table id="datatable" class="display table table-striped table-bordered table-resizable">
+			<thead>
+		    	<tr id="table-head">
+				</tr>
+			</thead>
+			<tbody id="table-body">
+		 		<tr>
+   				</tr>
+  				</tbody>
+			</table>
 	</div>
 	
 	<div id="mySidenav" class="sidenav bg-primary">
 		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
 		<a href="#">Open Orders</a>
 		<a href="#">Credit</a>
-		<a href="#">Items</a>
+		<a href="#" class="active">Items</a>
 		<a href="#">Contact</a>
 	</div>
 </body>
 <script>
+var table = null;
+/*$(document).ready(function() {
+	table = 
+	$('#datatable').DataTable( {
+		processing: true,
+		serverSide: true,
+		searchDelay: 1000,
+		ajax: { 
+			url: "/customer/get-item-page",
+			type: "POST",
+	        "data": function(data) {
+	            planify(data);  
+	        }
+		},
+		columns: [
+			{data: "item_number"},
+			{data: "item_descrip1"},
+			{data: "item_listprice"},
+			{data: "item_qoh"}
+		],
+		"iDisplayLength": 30
+	});
+	
+	$('#datatable_filter input').unbind();
+	$('#datatable_filter input').bind('keyup', function(e) {
+	if(e.keyCode == 13) {
+		table.search(this.value).draw();	
+	}
+	});	
+});*/
 
-/*
- * VUE WILL BE USED FOR DISPLAYING OPEN ORDERS, ITEMS, CREDIT, AND CONTACTS.
- * IT MUST BE FORMATTED AS FOLLOWS
- 
- 
- var vm = new Vue({
-	  el: '#vue-instance',
-	  data: {
-	    filters: [
-	      {name: 'MacBook Air', type: "select", options: [1,2,3,4]},
-	      {name: 'MacBook Pro', type: "text"},
-	      {name: 'Lenovo W530', type: "select", options: [1,2,3,4]},
-	      {name: 'Acer Aspire One', type: "select", options: [1,2,3,4]}
-	    ],
-	    columns: [
-	    	"Item Number", "Description", "Price", "QOH"
-	    ],
-	    tabledata: [
-	      [{data:"SS1234", class:"left"},{data:"THIS IS A FAKE ITEM", class:"left"},{data:97.24, class:"right"},{data:54, class:"right"}]
-	    ]
-	  }
-	});
- 
- 
- */
- var vm = new Vue({
-	  el: '#vue',
-	  created: function() {
-		  
-	  }
-	  data: {
-	    filters: [],
-	    columns: [],
-	    tabledata: []
-	  },
-	  methods: {
-		  
-	  }
-	});
+$(document).ready(function() {
+	
+	setUpItemTable()
+});
+
+function setUpItemTable() {
+	
+	$("#table-head").empty();
+	
+	$("#table-head").append(
+			"<th>" +
+    		"Item Number" +
+   			"</th>" +
+   			"<th>" +
+    		"Description" +
+   			"</th>" +
+   			"<th>" +
+    		"Price" +
+   			"</th>" +
+   			"<th>" +
+    		"QOH" +
+   			"</th>");
+	
+	table = 
+		$('#datatable').DataTable( {
+			processing: true,
+			serverSide: true,
+			searchDelay: 1000,
+			ajax: { 
+				url: "/customer/get-item-page",
+				type: "POST",
+		        "data": function(data) {
+		            planify(data);  
+		        }
+			},
+			columns: [
+				{data: "item_number"},
+				{data: "item_descrip1"},
+				{data: "item_listprice"},
+				{data: "item_qoh"}
+			],
+			"iDisplayLength": 30
+		});
+		
+		$('#datatable_filter input').unbind();
+		$('#datatable_filter input').bind('keyup', function(e) {
+		if(e.keyCode == 13) {
+			table.search(this.value).draw();	
+		}
+		});	
+}
+
+function setUpOrderTable() {
+	
+	$("#table-head").empty();
+	
+	$("#table-head").append(
+			"<th>" +
+    		"Sales Order +
+   			"</th>" +
+   			"<th>" +
+    		"Purchase Order" +
+   			"</th>" +
+   			"<th>" +
+    		"Ordered" +
+   			"</th>" +
+   			"<th>" +
+    		"Shipped" +
+   			"</th>" +
+   			"<th>"+
+   			"Item"+
+   			"</th>"+
+   			"<th>"+
+   			"Item Description"+
+   			"</th>");
+	
+	table = 
+		$('#datatable').DataTable( {
+			processing: true,
+			serverSide: true,
+			searchDelay: 1000,
+			ajax: { 
+				url: "/customer/get-orders-page",
+				type: "POST",
+		        "data": function(data) {
+		            planify(data);  
+		        }
+			},
+			columns: [
+				{data: "cohead_number"},
+				{data: "cohead_custponumber"},
+				{data: "coitem_qtyord"},
+				{data: "coitem_qtyshipped"},
+				{data: "item_number"},
+				{data: "item_descrip1"}
+			],
+			"iDisplayLength": 30
+		});
+		
+		$('#datatable_filter input').unbind();
+		$('#datatable_filter input').bind('keyup', function(e) {
+		if(e.keyCode == 13) {
+			table.search(this.value).draw();	
+		}
+		});	
+}
+
+
+
+function planify(data) {
+    for (var i = 0; i < data.columns.length; i++) {
+        column = data.columns[i];
+        column.searchRegex = column.search.regex;
+        column.searchValue = column.search.value;
+        delete(column.search);
+    }
+}
+
 </script>

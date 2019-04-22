@@ -1,8 +1,9 @@
 package xtuple;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 
-public class XItem {
+public class XItem extends Object{
 	
 	private int id;
 	private String number;
@@ -31,7 +32,7 @@ public class XItem {
 	{
 		if(item.containsKey("item_id"))
 		{
-			setId((int) item.get("item_id"));
+			setId((Integer) item.get("item_id"));
 		}
 		if(item.containsKey("item_number"))
 		{
@@ -47,7 +48,7 @@ public class XItem {
 		}
 		if(item.containsKey("item_classcode_id"))
 		{
-			setClasscode_id((int) item.get("item_classcode_id"));
+			setClasscode_id((Integer) item.get("item_classcode_id"));
 		}
 		if(item.containsKey("item_comments"))
 		{
@@ -67,19 +68,19 @@ public class XItem {
 		}
 		if(item.containsKey("item_type"))
 		{
-			setType((char) item.get("item_type"));
+			setType(((String) item.get("item_type")).charAt(0));
 		}
 		if(item.containsKey("item_prodweight"))
 		{
-			setProdweight((float) item.get("item_prodweight"));
+			setProdweight(((BigDecimal) item.get("item_prodweight")).floatValue());
 		}
 		if(item.containsKey("item_prodcat_id"))
 		{
-			setProdcat_id((int) item.get("item_prodcat_id"));
+			setProdcat_id((Integer) item.get("item_prodcat_id"));
 		}
 		if(item.containsKey("item_listprice"))
 		{
-			setListprice((float) item.get("item_listprice"));
+			setListprice(((BigDecimal) item.get("item_listprice")).floatValue());
 		}
 		if(item.containsKey("extdescrip"))
 		{
@@ -91,11 +92,11 @@ public class XItem {
 		}
 		if(item.containsKey("inv_uom_id"))
 		{
-			setInv_uom_id((int) item.get("inv_uom_id"));
+			setInv_uom_id((Integer) item.get("inv_uom_id"));
 		}
 		if(item.containsKey("price_uom_id"))
 		{
-			setPrice_uom_id((int) item.get("price_uom_id"));
+			setPrice_uom_id((Integer) item.get("price_uom_id"));
 		}
 	}
 

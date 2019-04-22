@@ -1,30 +1,37 @@
 package table;
 
 public class Page {
-	private int offset=0;
-	private int size=20;
+	private int start=0;
+	private int length=30;
 
 	public Page() {
 		
 	}
 
-	public int getSize()
+	public Page(int start, int length)
 	{
-		return size;
+		setStart(start);
+		setLength(length);
 	}
 
-	public void setSize(int size)
+	public int getStart()
 	{
-		this.size = size;
+		return start;
 	}
 
-	public int getOffset()
+	public void setStart(int start)
 	{
-		return offset;
+		this.start = start;
 	}
 
-	public void setOffset(int offset)
+	public int getLength()
 	{
-		this.offset = offset;
+		return length;
 	}
+
+	public void setLength(int length)
+	{
+		this.length = length;
+	}
+	
 }
