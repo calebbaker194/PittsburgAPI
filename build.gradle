@@ -27,6 +27,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
+    //Spring
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.boot:spring-boot-starter-thymeleaf")
     compile("org.springframework.boot:spring-boot-devtools")
@@ -35,9 +36,22 @@ dependencies {
     // https://mvnrepository.com/artifact/postgresql/postgresql
     compile group: 'postgresql', name: 'postgresql', version: '9.0-801.jdbc4'
     
+     // This is for the twilio API
+    compile group: "com.twilio.sdk", name: "twilio", version: "7.27.0"
+
+    
     //Dependency for javamail
     // https://mvnrepository.com/artifact/javax.mail/javax.mail-api
 	compile group: "com.sun.mail", name: "javax.mail", version: "1.6.2"
+	
+	//These are for the google client
+	compile 'com.google.api-client:google-api-client:1.23.0'
+	compile 'com.google.oauth-client:google-oauth-client-jetty:1.23.0'
+	compile 'com.google.apis:google-api-services-drive:v3-rev110-1.23.0'
+	
+	// https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
+	testCompile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+	
     
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }
