@@ -1,4 +1,4 @@
-package objects;
+package email;
 
 import java.io.Serializable;
 
@@ -19,6 +19,7 @@ public class ImapServer implements Serializable{
 	private String commonName;
 	private String smtpProtocol;
 	private String imapProtocol;
+	private Long lastCheck;
 	
 	public ImapServer(boolean starttls, String imapHost, int imapPort, String smtpHost, int smtpPort, String imapProto, String smtpProto ,String username,String address,String commonName,String password ,boolean auth)
 	{
@@ -133,5 +134,13 @@ public class ImapServer implements Serializable{
 	public void setImapProtocol(String imapProtocol)
 	{
 		this.imapProtocol = imapProtocol;
+	}
+	public Long getLastCheck()
+	{
+		return lastCheck;
+	}
+	public void setLastCheck(Long lastCheck)
+	{
+		this.lastCheck = lastCheck;
 	}
 }

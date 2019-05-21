@@ -1,4 +1,4 @@
-package sender;
+package helpers;
 
 //@Controller
 public abstract class Sender 
@@ -26,7 +26,7 @@ public abstract class Sender
 		this.name = name;
 	}
 	
-	public abstract boolean send();
+	public abstract boolean send(Message msg);
 	
 	//@RequestMapping(path = "/get-sender-by-id", method = RequestMethod.POST)
 	public abstract Sender getSenderById();

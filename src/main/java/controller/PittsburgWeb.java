@@ -1,6 +1,5 @@
 package controller;
 
-
 import java.util.Timer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -19,13 +18,10 @@ public class PittsburgWeb  {
 	
 	public static void main (String args[]) throws Exception
 	{		
-		
-		config = new RunningConfig();
-		config = ConfigReader.ReadConf(config.getClass(), "config/main.conf");
-		
-		config.getMain().activateConfig();
-		config.getMap().activateConfig();
-		config.getMail().activateConfig();
+	
+		config = ConfigReader.ReadConf(config.getClass(), "data/main.conf");
+		config.activateConfig();
+
 		
 		// Alert Thread
 		Timer alertTimer = new Timer();

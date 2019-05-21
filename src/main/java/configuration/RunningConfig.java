@@ -1,6 +1,8 @@
 package configuration;
 
-public class RunningConfig {
+import java.util.Map;
+
+public class RunningConfig implements Configurable{
 	private MailCfg mail;
 	private MapCfg map;
 	private MainCfg main;
@@ -33,6 +35,31 @@ public class RunningConfig {
 	public void setMain(MainCfg main)
 	{
 		this.main = main;
+	}
+	public void save()
+	{
+		ConfigReader.WriteConf(this, "data/main.conf");
+	}
+	public RunningConfig reload()
+	{
+		 return ConfigReader.ReadConf(RunningConfig.class, "data/main,conf");
+	}
+
+	@Override
+	public boolean activateConfig()
+	{
+		mail.activateConfig();
+		main.activateConfig();
+		map.activateConfig();
+		
+		return true;
+	}
+
+	@Override
+	public String saveConfig()
+	{
+		save();
+		return "";
 	}
 
 }

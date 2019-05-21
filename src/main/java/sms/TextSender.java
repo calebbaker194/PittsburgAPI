@@ -1,9 +1,12 @@
-package sender;
+package sms;
 
-public class EmailSender extends Sender{
+import helpers.Message;
+import helpers.Sender;
+
+public class TextSender extends Sender{
 
 	@Override
-	public boolean send()
+	public boolean send(Message msg)
 	{
 		// TODO Auto-generated method stub
 		return false;
@@ -15,5 +18,5 @@ public class EmailSender extends Sender{
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
 }
