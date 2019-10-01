@@ -87,7 +87,7 @@ public class SQL {
 					}	
 					else
 					{
-						st.executeUpdate(query,Statement.RETURN_GENERATED_KEYS);
+						st.executeUpdate(query,Statement.NO_GENERATED_KEYS);
 						results = st.getGeneratedKeys();
 					}
 					

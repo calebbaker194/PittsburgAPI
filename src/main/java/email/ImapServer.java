@@ -20,6 +20,8 @@ public class ImapServer implements Serializable{
 	private String smtpProtocol;
 	private String imapProtocol;
 	private Long lastCheck;
+	private boolean monitor=true;
+	private boolean sender=true;
 	
 	public ImapServer(boolean starttls, String imapHost, int imapPort, String smtpHost, int smtpPort, String imapProto, String smtpProto ,String username,String address,String commonName,String password ,boolean auth)
 	{
@@ -40,7 +42,7 @@ public class ImapServer implements Serializable{
 	{
 		
 	}
-	public boolean getStarttls() {
+	public boolean isStarttls() {
 		return starttls;
 	}
 	public void setStarttls(boolean starttls) {
@@ -58,7 +60,7 @@ public class ImapServer implements Serializable{
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	public boolean getAuth() {
+	public boolean isAuth() {
 		return auth;
 	}
 	public void setAuth(boolean auth) {
@@ -142,5 +144,21 @@ public class ImapServer implements Serializable{
 	public void setLastCheck(Long lastCheck)
 	{
 		this.lastCheck = lastCheck;
+	}
+	public boolean isMonitor()
+	{
+		return monitor;
+	}
+	public void setMonitor(boolean monitor)
+	{
+		this.monitor = monitor;
+	}
+	public boolean isSender()
+	{
+		return sender;
+	}
+	public void setSender(boolean sender)
+	{
+		this.sender = sender;
 	}
 }

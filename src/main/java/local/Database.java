@@ -274,12 +274,26 @@ public class Database {
 	     {
      		Statement addMail = conn.createStatement();
      		addMail.execute("INSERT INTO mail_info(mail_name,imap_host,imap_port,imap_proto,smtp_host,smtp_port,smtp_proto,mail_username,mail_password,mail_address,mail_commonname,mail_monitor,mail_sender,mail_starttls,mail_auth,mail_lastcheck)"
-     				+ "                     VALUES("+ms.getCommonName()+","+ms.getImapHost()+")");
+     				+ "                     VALUES('"+ms.getCommonName()+"', '"
+     												+ms.getImapHost()+"', "
+     												+ms.getImapPort()+", '"
+     												+ms.getImapProtocol()+"', '"
+     												+ms.getSmtpHost()+"', "
+     												+ms.getSmtpPort()+", '"
+     												+ms.getSmtpProtocol()+"', '"
+     												+ms.getUsername()+"', '"
+     												+ms.getPassword()+"', '"
+     												+ms.getAddress()+"', '"
+     												+ms.getCommonName()+"', "
+     												+ms.isMonitor()+", "
+     												+ms.isSender()+", "
+     												+ms.isStarttls()+", "
+     												+ms.isAuth()+",0)");
      		addMail.close();
 	     }
 		 catch(Exception e)
 		 {
-			 
+			 e.printStackTrace();
 		 }
 	}
 	

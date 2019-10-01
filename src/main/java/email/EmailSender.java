@@ -31,8 +31,8 @@ public class EmailSender extends Sender{
 		Properties props = new Properties();
 		props.put("mail.imap.host",conn.getImapHost()+"");
 		props.put("mail.imap.port", conn.getImapPort()+"");
-		props.put("mail.imap.starttls.enable", conn.getStarttls()+"");
-		props.put("mail.smtp.auth", conn.getAuth()+"");
+		props.put("mail.imap.starttls.enable", conn.isStarttls()+"");
+		props.put("mail.smtp.auth", conn.isAuth()+"");
 		emailSessionObj = Session.getInstance(props);
 	}
 	
@@ -42,12 +42,12 @@ public class EmailSender extends Sender{
 		Properties prop;
 		// Set send address properties
 		prop = System.getProperties();
-		prop.put("mail.smtp.starttls.enable", conn.getStarttls());
+		prop.put("mail.smtp.starttls.enable", conn.isStarttls());
 		prop.put("mail.smtp.host", conn.getSmtpHost());
 		prop.put("mail.smtp.user", conn.getUsername());
 		prop.put("mail.smtp.password", conn.getPassword());
 		prop.put("mail.smtp.port", conn.getSmtpPort()+"");
-		prop.put("mail.smtp.auth", conn.getAuth()+"");
+		prop.put("mail.smtp.auth", conn.isAuth()+"");
 		//prop.put("mail.smtp.ssl.enable", "true");
 
 		// Open Session
@@ -85,12 +85,12 @@ public class EmailSender extends Sender{
 		Properties prop;
 		// Set send address properties
 		prop = System.getProperties();
-		prop.put("mail.smtp.starttls.enable", conn.getStarttls());
+		prop.put("mail.smtp.starttls.enable", conn.isStarttls());
 		prop.put("mail.smtp.host", conn.getSmtpHost());
 		prop.put("mail.smtp.user", conn.getUsername());
 		prop.put("mail.smtp.password", conn.getPassword());
 		prop.put("mail.smtp.port", conn.getSmtpPort()+"");
-		prop.put("mail.smtp.auth", conn.getAuth()+"");
+		prop.put("mail.smtp.auth", conn.isAuth()+"");
 		//prop.put("mail.smtp.ssl.enable", "true");
 
 		// Open Session

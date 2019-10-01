@@ -3,7 +3,7 @@ package helpers;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class EmailMessage implements Message{
+public class EmailMessage extends Message{
 
 	private String id;
 	private String subject;
