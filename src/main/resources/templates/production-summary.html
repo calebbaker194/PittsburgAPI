@@ -1,0 +1,229 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script
+  		src="https://code.jquery.com/jquery-3.3.1.js"
+ 		integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+  		crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script src="/js/sidebar.js"></script>
+    <script src="/js/chartist.js"></script>
+    <script src="/js/moment.js"></script>
+    <!-- <script src="/js/table.js"></script> -->
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}"/>
+    <link rel="stylesheet" th:href="@{/css/customer.css}"/>
+    <link rel="stylesheet" th:href="@{/css/table.css}"/>
+    <link rel="stylesheet" th:href="@{/css/chartist.css}"/>
+    <title>Employee Landing</title>
+</head>
+
+<body>
+
+	<!--Navigation bar-->
+	<div id="nav-placeholder">
+
+	</div>
+
+	<script>
+	$(function(){
+	  $("#nav-placeholder").load("/navbar-top.html");
+	});
+	</script>
+	<!--end of Navigation bar-->
+	
+	<div class="c-page">
+	<div><row><h6>Date-Fiter:</h6>
+	     <col class="col-sm-1"><label>Start Time <input value="2020-01-17T06:00" onchange = "dateChange()" type="datetime-local" id="starttime"></label></col>
+	     <col class="col-sm-1"><label>Stop Time <input value="2020-01-17T17:00" onchange = "dateChange()" type="datetime-local" id="stoptime"></label></col>
+	    </row> </div>
+	     <br>
+		<table id="datatable" class="display table table-striped table-bordered table-resizable">
+			<thead>
+		    	<tr id="table-head">
+				</tr>
+			</thead>
+			<tbody id="table-body">
+		 		<tr>
+   				</tr>
+  			</tbody>
+		</table>
+		<div>
+			<div id = "chartContainer">
+			
+			</div>
+		</div>
+	</div>
+	
+	<div id="mySidenav" class="sidenav bg-primary">
+		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+		<a href="#" class="active">Production Monitors</a>
+		<a href="#">Item List</a>
+	</div>
+</body>
+<script>
+var table = null;
+var datapoints = [];
+var lastRender = -1;
+
+
+$(document).ready(function() {
+	
+	setUpMonitorTable()
+	
+});
+
+
+function dateChange()
+{
+	if(lastRender != -1 && $("#starttime").val()<$("#stoptime").val())
+	{	
+		graphRender(lastRender)
+	}
+}
+
+function graphRender(monId)
+{	
+	lastRender = monId;
+	var blanks = genMinArray($("#starttime").val(),$("#stoptime").val());
+	for(var b in blanks)
+	{
+		datapoints.push({
+			x: blanks[b],
+			y: 0
+		});
+	}
+	
+	$.post("/production/get-monitor-data/"+monId,
+			{"start": $("#starttime").val().replace("T"," ")+":00",
+		     "stop": $("#stoptime").val().replace("T"," ")+":00"}, parseChart,'json');
+	
+}
+
+function parseChart(chartData)
+{
+	var options = {
+			axisX: {
+				type: Chartist.FixedScaleAxis,
+				onlyInteger: false,
+				divisor: 12,
+			    labelInterpolationFnc: function(value) {
+			        return moment(value).format('hh:mm A');
+			     }
+			},
+			showPoint: false,
+			height: '300px'
+	}
+	
+	var temp = [];
+	datapoints = [];
+	for(var x = 0; x<chartData.length;x++)
+	{
+		var time = new Date(chartData[x].time);
+		temp.push(Math.round(time.getTime()/1000));
+		datapoints.push({
+			x: time,
+			y: chartData[x].takt
+		});
+		
+	}
+	console.log(datapoints.length)
+	console.log(temp.length)
+	var blanks = genMinArray($("#starttime").val(),$("#stoptime").val());
+	console.log(blanks.length)
+	for(var b in blanks)
+	{
+		if($.inArray(Math.round(blanks[b].getTime()/1000),temp) === -1)
+		{
+			datapoints.push({
+				x: blanks[b],
+				y: 0
+			});
+		}
+	}
+	datapoints = datapoints.sort((a,b) => a.x.getTime() - b.x.getTime())
+	
+	new Chartist.Line("#chartContainer", {
+		labels:[],
+		series: [datapoints]
+	},options);
+	console.log(datapoints)
+
+}
+
+
+function setUpMonitorTable() {
+	
+	$("#table-head").empty();
+	
+	$("#table-head").append(
+			"<th>" +
+    		"Name" +
+   			"</th>" +
+   			"<th>" +
+    		"Mac" +
+   			"</th>"+
+   			"<th>" +
+    		"IP" +
+   			"</th>");
+	
+	table = 
+		$('#datatable').DataTable( {
+			processing: true,
+			serverSide: true,
+			searchDelay: 1000,
+			ajax: { 
+				url: "/production/get-production-summary/all",
+				type: "POST",
+		        "data": function(data) {
+		            planify(data);  
+		        }
+			},
+			columns: [
+				{data: "station_name", 
+					"fnCreatedCell": function(nTd, sData, oData, iRow, iCol) {
+						$(nTd).html('<a href="#" onclick="graphRender('+oData.DT_RowId+')">'+oData.station_name+'</a>');
+					}
+				},
+				{data: "station_mac"},
+				{data: "station_ip"}
+			],
+			"iDisplayLength": 30
+		});
+		
+		$('#datatable_filter input').unbind();
+		$('#datatable_filter input').bind('keyup', function(e) {
+		if(e.keyCode == 13) {
+			table.search(this.value).draw();	
+		}
+		});	
+}
+
+
+function planify(data) {
+    for (var i = 0; i < data.columns.length; i++) {
+        column = data.columns[i];
+        column.searchRegex = column.search.regex;
+        column.searchValue = column.search.value;
+        delete(column.search);
+    }
+    
+}
+
+function genMinArray(start,stop)
+{
+	var mils = new Date(stop).getTime()-new Date(start).getTime()
+	var mins = Math.round(mils/60000)
+	var minarry= []
+	for(var x=1;x<=mins; x++)
+	{
+		var d = new Date(new Date(start).getTime()+(x*60000))
+		minarry.push(d)
+	}
+	return minarry;
+}
+
+
+</script>
+</html>

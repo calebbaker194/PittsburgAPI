@@ -10,6 +10,8 @@ import javax.security.auth.login.FailedLoginException;
 public class SQL {
 	
 	public static HashMap<String,Integer> flagMap = new HashMap<String,Integer>();
+	public static Connection dbConnection;
+	
 	
 	static {
 		flagMap.put("SELECT", 0);
@@ -28,12 +30,12 @@ public class SQL {
 	public static String SQLConnection(String db,String host,int port,String username,String password)
 	{
 		connectionString="jdbc:postgresql://"+host+":"+port+"/"+db;
-		Connection dbConnection;
+		
 		
 		try
 		{
 			dbConnection = DriverManager.getConnection(connectionString,username,password);
-			dbConnection.close();
+			
 		} catch (SQLException e)
 		{
 			System.err.println("UNABLE TO LOG IN TO DATABASE "+ e);
@@ -60,11 +62,11 @@ public class SQL {
 	 */
 	public static ResultList executeQuery(String query,int flag)
 	{
-		Connection dbConnection=null;
 		
 		try 
 		{
-			dbConnection = DriverManager.getConnection(connectionString,username,password);
+			if(!dbConnection.isClosed())
+				dbConnection = DriverManager.getConnection(connectionString,username,password);
 		}
 		catch (SQLException e) 
 		{
@@ -77,6 +79,7 @@ public class SQL {
 			{
 				try {
 					Statement st = dbConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_READ_ONLY);
+					PreparedStatement p = dbConnection.prepareStatement(query);
 					List<HashMap<String,Object>> resultArray = new ArrayList<HashMap<String,Object>>();
 					HashMap<String,Object> row;
 					ResultSet results;
@@ -107,7 +110,6 @@ public class SQL {
 				
 					results.close();
 					st.close();
-					dbConnection.close();
 					return new ResultList(resultArray);
 				} catch (SQLException e) {
 					ResultList r = new ResultList();
