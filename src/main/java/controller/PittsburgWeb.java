@@ -8,8 +8,8 @@ import java.util.Scanner;
 import java.util.Timer;
 import java.util.regex.Pattern;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+//import org.springframework.boot.SpringApplication;
+//import org.springframework.boot.autoconfigure.SpringBootApplication;
 import alert.AlertWorker;
 import configuration.ConfigReader;
 import configuration.RunningConfig;
@@ -19,14 +19,14 @@ import helpers.SQL;
 import local.Database;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.LoggerFactory;
 
-@SpringBootApplication
+//@SpringBootApplication
 public class PittsburgWeb  {
 	
 
 	public static RunningConfig config  = new RunningConfig();
-	public static final Logger LOG = LoggerFactory.getLogger("PW");
+	public static final Logger LOG = null;//LoggerFactory.getLogger("PW");
 	
 	public static void main (String args[]) throws Exception
 	{	
@@ -41,7 +41,7 @@ public class PittsburgWeb  {
 		alertTimer.scheduleAtFixedRate(AlertWorker.instance, 0, 5 * 1000);
 		
 		// Main Application
-		SpringApplication.run(PittsburgWeb.class, args);	
+//		SpringApplication.run(PittsburgWeb.class, args);	
 		System.out.println("running");
 	}
 	
