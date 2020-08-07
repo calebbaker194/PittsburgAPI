@@ -1,4 +1,59 @@
 
+@media print {
+	
+    @page {  
+      size:8.5in 11in;  
+    }  
+	
+   #datatable_filter, #datatable_length, #datatable_paginate, #datatable_info{
+     display: none;
+   }
+   
+   tr {
+   width:100%;
+   margin:0px;
+   	 box-sizing: border-box;
+   	-webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box; 
+   }
+   
+   svg {
+   box-sizing: border-box;
+   -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box; 
+   overflow: visible;
+   
+   }
+   
+   #datatable_wrapper, #datatable {
+   	box-sizing: border-box;
+   	width:100% !important;
+   	-webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box; 
+   }
+
+  .c-page{
+    display: block;
+    margin: 1%;
+    padding: 0px;
+    background-color: #ffbbbb;
+    width: 7in;
+    height: 11in;
+    box-sizing: border-box;
+   	-webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box; 
+  }
+  .show {
+  	display: block;
+  }
+  .even,.odd{
+    display: none;
+  }
+  
+  .prints{
+     margin: 3%;
+  }
+}
 .table-resizable {
 	&.resizing {
 		cursor: col-resize;
@@ -34,6 +89,14 @@
 	}
 }
 
+td.details-control {
+    background: '<i class="fa fa-plus-square-o" style="font-size:24px"></i>';
+    cursor: pointer;
+}
+
+tr.shown td.details-control {
+    background: '<i class="fa fa-minus-square-o" style="font-size:24px"></i>';
+}
 
 table.dataTable {
 	width: 100%;

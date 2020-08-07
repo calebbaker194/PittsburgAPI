@@ -11,11 +11,14 @@
     <script src="/js/sidebar.js"></script>
     <script src="/js/chartist.js"></script>
     <script src="/js/moment.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
     <!-- <script src="/js/table.js"></script> -->
     <link rel="stylesheet" th:href="@{/css/bootstrap.css}"/>
     <link rel="stylesheet" th:href="@{/css/customer.css}"/>
     <link rel="stylesheet" th:href="@{/css/table.css}"/>
     <link rel="stylesheet" th:href="@{/css/chartist.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <title>Employee Landing</title>
 </head>
 
@@ -34,13 +37,13 @@
 	<!--end of Navigation bar-->
 	
 	<div class="c-page">
-	<div><row><h6>Date-Fiter:</h6>
+	<div class="d-print-none"><row><h6>Date-Fiter:</h6>
 	     <col class="col-sm-1"><label>Start Time <input value="2020-01-17T06:00" onchange = "dateChange()" type="datetime-local" id="starttime"></label></col>
 	     <col class="col-sm-1"><label>Stop Time <input value="2020-01-17T17:00" onchange = "dateChange()" type="datetime-local" id="stoptime"></label></col>
 	    </row> </div>
 	     <br>
 		<table id="datatable" class="display table table-striped table-bordered table-resizable">
-			<thead>
+			<thead class='d-print-none'>
 		    	<tr id="table-head">
 				</tr>
 			</thead>
@@ -49,14 +52,10 @@
    				</tr>
   			</tbody>
 		</table>
-		<div>
-			<div id = "chartContainer">
-			
-			</div>
-		</div>
+
 	</div>
 	
-	<div id="mySidenav" class="sidenav bg-primary">
+	<div id="mySidenav" class="sidenav bg-primary d-print-none">
 		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
 		<a href="#" class="active">Production Monitors</a>
 		<a href="#">Item List</a>
@@ -87,21 +86,30 @@ function graphRender(monId)
 {	
 	lastRender = monId;
 	var blanks = genMinArray($("#starttime").val(),$("#stoptime").val());
-	for(var b in blanks)
-	{
-		datapoints.push({
-			x: blanks[b],
-			y: 0
-		});
-	}
+//	for(var b in blanks)
+//	{
+//		datapoints.push({
+//			x: blanks[b],
+//			y: 0
+//		});
+//	}
 	
-	$.post("/production/get-monitor-data/"+monId,
-			{"start": $("#starttime").val().replace("T"," ")+":00",
-		     "stop": $("#stoptime").val().replace("T"," ")+":00"}, parseChart,'json');
+	
 	
 }
 
-function parseChart(chartData)
+function printChart(id)
+{
+	$("#prodmon"+id).removeClass("d-print-none");
+	var svg = document.querySelector("#prodmon"+id+" SVG");
+	console.log(svg);
+	svg.style.width = "700px"
+	window.print();
+	svg.style.width = "100%"
+	$("#prodmon"+id).addClass("d-print-none");
+}
+
+function parseChart(chartData,chid)
 {
 	var options = {
 			axisX: {
@@ -113,51 +121,109 @@ function parseChart(chartData)
 			     }
 			},
 			showPoint: false,
-			height: '300px'
+			height: '300px',
+			lineSmooth: Chartist.Interpolation.step({
+				postpone: true,
+				fillHoles: false
+			})
 	}
 	
 	var temp = [];
 	datapoints = [];
+	datapoints.push({
+		x: new Date( $("#starttime").val()),
+		y: 0
+	});
+	var rawdata = '<table width="90%">\n<tr>\n<th>Start</th>\n<th>Stop</th>\n<th>Produced</th>\n<th>Average</th>\n<th>Run Time</th>\n<th>Stop Time</th></tr>\n';
+	var totalProduced = 0;
+	var totalTime = 0;
+	var totalAverage = 0;
+	var totalStop= 0;
 	for(var x = 0; x<chartData.length;x++)
 	{
-		var time = new Date(chartData[x].time);
-		temp.push(Math.round(time.getTime()/1000));
+		var start_time = new Date(chartData[x].start_time);
+		var stop_time = new Date(chartData[x].stop_time);
+		temp.push(Math.round(start_time.getTime()/1000));
+		rawdata += "<tr><td>"+moment(new Date(start_time)).format("hh:mm   MM/DD")+"</td><td>"+moment(new Date(stop_time)).format("hh:mm MM/DD")+"</td>"+
+		"<td>"+(chartData[x].pieces)+"</td>"+
+		"<td>"+(chartData[x].takt)+"</td>"+
+		"<td>"+pad(parseInt((new Date(stop_time)-new Date(start_time))/1000/60/60))+":"+pad(Math.round(((new Date(stop_time)-new Date(start_time))/1000/60)%60))+"</td>";
+		
+		if(x<chartData.length-1)
+		{
+			totalStop+=(new Date(chartData[x+1].start_time) - new Date(chartData[x].stop_time))
+			var downTime = (new Date(chartData[x+1].start_time) - new Date(chartData[x].stop_time))/1000
+			rawdata+="<td>"+""+ pad((downTime/60/60) | 0)+":"+pad(Math.round((downTime/60)%60));+"</td>";
+		}
+		else
+		{
+			rawdata+="<td></td>";
+		}
+		rawdata+= "</tr>";
+		
+		totalTime += stop_time - start_time;
+		totalProduced+=chartData[x].pieces;
 		datapoints.push({
-			x: time,
+			x: start_time,
 			y: chartData[x].takt
+		});
+		datapoints.push({
+			x: stop_time,
+			y: 0
 		});
 		
 	}
-	console.log(datapoints.length)
-	console.log(temp.length)
+	rawdata+="</table>"
+		
 	var blanks = genMinArray($("#starttime").val(),$("#stoptime").val());
-	console.log(blanks.length)
-	for(var b in blanks)
-	{
-		if($.inArray(Math.round(blanks[b].getTime()/1000),temp) === -1)
-		{
-			datapoints.push({
-				x: blanks[b],
-				y: 0
-			});
-		}
-	}
+
 	datapoints = datapoints.sort((a,b) => a.x.getTime() - b.x.getTime())
 	
-	new Chartist.Line("#chartContainer", {
+	new Chartist.Line("#chartContainer"+chid, {
 		labels:[],
 		series: [datapoints]
 	},options);
-	console.log(datapoints)
+    
+	
+	totalTime = totalTime / 1000;
+	totalTimef = ""+ pad((totalTime/60/60) | 0)+":"+pad(Math.round((totalTime/60)%60));
+	totalStop = totalStop / 1000;
+	totalStopf = ""+ pad((totalStop/60/60) | 0)+":"+pad(Math.round((totalStop/60)%60));
+	
+	totalAverage = totalProduced/(totalTime/60);
+	
+	var effecency = Math.round((totalTime/(totalStop+totalTime))*1000)/10;
 
+	
+	$("#rawData"+chid).html(rawdata)
+	$("#totals"+chid).html('<div><table width="90%"><tr><th>Total Produced</th>'+
+								"<th>Total Runtime</th>"+
+								"<th>Total Stoptime</th>"+
+								"<th>Total Average</th>"+
+								"<th>Effecency</th>"+
+								"</tr><tr><td>"+totalProduced+"</td>"+
+							"<td>"+totalTimef+"</td>"+
+							"<td>"+totalStopf+"</td>"+
+							"<td>"+(Math.round(totalAverage*100)/100)+"</td>"+
+							"<td>"+effecency+"%</td> </tr></table></div>")
 }
 
+
+function pad(num) {
+	var s = num+"";
+	if(s.length < 2)
+		s = "0" + s
+	return s;
+}
 
 function setUpMonitorTable() {
 	
 	$("#table-head").empty();
 	
 	$("#table-head").append(
+			"<th>" +
+			'<i class="fa">&#xf201;</i>'+
+   			"</th>" +
 			"<th>" +
     		"Name" +
    			"</th>" +
@@ -181,11 +247,13 @@ function setUpMonitorTable() {
 		        }
 			},
 			columns: [
-				{data: "station_name", 
-					"fnCreatedCell": function(nTd, sData, oData, iRow, iCol) {
-						$(nTd).html('<a href="#" onclick="graphRender('+oData.DT_RowId+')">'+oData.station_name+'</a>');
-					}
+				{
+					"className": 'details-control',
+					"orderable": false,
+					"data": null,
+					"defaultContent": '<i class="fa fa-plus-square-o" style="font-size:24px"></i>'
 				},
+				{data: "station_name"},
 				{data: "station_mac"},
 				{data: "station_ip"}
 			],
@@ -200,6 +268,40 @@ function setUpMonitorTable() {
 		});	
 }
 
+
+$('#datatable tbody').on('click', 'td.details-control', function () {
+	
+    var tr = $(this).closest('tr');
+    var row = table.row( tr );
+
+    if ( row.child.isShown() ) {
+        // This row is already open - close it
+        row.child.hide();
+        tr.removeClass('shown');
+    }
+    else {
+        
+    	tr.addClass('shown');
+        
+    	$.post("/production/get-monitor-data/"+row.id(),
+    			{"start": $("#starttime").val().replace("T"," ")+":00",
+    		     "stop": $("#stoptime").val().replace("T"," ")+":00"}, function(chartData)
+    		     {
+    		    	var childcontent = '<div class=">'+
+    		    					   	 '<div class="d-print-none" align="right"><button onclick="printChart('+row.id()+')">Print</button><br><br></div>'+
+    		    					   	 '<div class="d-print-none" id="prodmon'+row.id()+'">'+
+    		    					   	   '<div id="totals'+row.id()+'"></div>'+
+    		    					   	   '<div id = "chartContainer'+row.id()+'"></div>'+
+    		    						   '<div id="rawData'+row.id()+'""></div>'+
+    		    						 '</div>'+
+    		    					   '</div>';
+    		    		
+    		    	row.child(childcontent).show();
+    				parseChart(chartData,row.id())
+
+    		     },'json');
+    }
+} );
 
 function planify(data) {
     for (var i = 0; i < data.columns.length; i++) {

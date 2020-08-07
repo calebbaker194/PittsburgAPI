@@ -39,6 +39,7 @@ public class SQL {
 		} catch (SQLException e)
 		{
 			System.err.println("UNABLE TO LOG IN TO DATABASE "+ e);
+			e.printStackTrace();
 		}
 		setPassword(password);
 		setUsername(username);

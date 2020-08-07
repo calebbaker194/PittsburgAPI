@@ -1,15 +1,17 @@
-package sms;
+ package sms;
+
+import java.util.ArrayList;
 
 public class TextMessage extends helpers.Message{
 	private String text;
 	private String recipient;
-	private String attachmentName;
+	private ArrayList<String> attachmentList = new ArrayList<String>();
 	
-	public TextMessage(String text,String recipient, String attachmentName)
+	public TextMessage(String text,String recipient, ArrayList<String> tlist)
 	{
 		setText(text);
 		setRecipient(recipient);
-		setAttachmentName(attachmentName);
+		setAttachmentList(tlist);
 	}
 	
 	public TextMessage(String text,String recipient)
@@ -39,13 +41,13 @@ public class TextMessage extends helpers.Message{
 		this.text = text;
 	}
 
-	public String getAttachmentName()
+	public ArrayList<String> getAttachmentList()
 	{
-		return attachmentName;
+		return attachmentList;
 	}
 
-	public void setAttachmentName(String attachmentName)
+	public void setAttachmentList(ArrayList<String> attachmentName)
 	{
-		this.attachmentName = attachmentName;
+		this.attachmentList = attachmentName;
 	}
 }

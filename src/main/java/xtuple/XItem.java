@@ -2,14 +2,17 @@ package xtuple;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import helpers.SQL;
 
 public class XItem extends Object{
 	
 	private int id;
 	private String number;
+	private String alias;
 	private String descrip1;
 	private String descrip2;
 	private int classcode_id;
+	private double qoh;
 	private String comments;
 	private boolean isSold;
 	private boolean isFractional;
@@ -21,6 +24,7 @@ public class XItem extends Object{
 	private String extdescrip;
 	private String upccode;
 	private int inv_uom_id;
+	private String inv_uom_name;
 	private int price_uom_id;
 	
 	public XItem()
@@ -28,11 +32,28 @@ public class XItem extends Object{
 		
 	}
 	
+	public XItem(int item_id)
+	{
+		this(SQL.executeQuery("SELECT * FROM item WHERE item_id=" + item_id + ";" ).get(0));
+	}
+	
 	public XItem(HashMap<String, Object> item)
 	{
 		if(item.containsKey("item_id"))
 		{
 			setId((Integer) item.get("item_id"));
+		}
+		if(item.containsKey("itemalias_number"))
+		{
+			setAlias((String) item.get("itemalias_number"));
+		}
+		if(item.containsKey("inv_uom_name"))
+		{
+			setInv_uom_name((String) item.get("inv_uom_name"));
+		}
+		if(item.containsKey("item_qoh"))
+		{
+			setQoh(((BigDecimal)item.get("item_qoh")).doubleValue());
 		}
 		if(item.containsKey("item_number"))
 		{
@@ -268,5 +289,29 @@ public class XItem extends Object{
 	public void setPrice_uom_id(int price_uom_id)
 	{
 		this.price_uom_id = price_uom_id;
+	}
+
+	public String getAlias() {
+		return alias;
+	}
+
+	public void setAlias(String alias) {
+		this.alias = alias;
+	}
+
+	public double getQoh() {
+		return qoh;
+	}
+
+	public void setQoh(double qoh) {
+		this.qoh = qoh;
+	}
+
+	public String getInv_uom_name() {
+		return inv_uom_name;
+	}
+
+	public void setInv_uom_name(String inv_uom_name) {
+		this.inv_uom_name = inv_uom_name;
 	}
 }

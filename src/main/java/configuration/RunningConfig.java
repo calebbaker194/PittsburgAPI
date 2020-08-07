@@ -3,6 +3,9 @@ package configuration;
 import java.util.Map;
 
 public class RunningConfig implements Configurable{
+	
+	private String keypass;
+	private String keyfile;
 	private MainCfg main;
 	
 	public RunningConfig()
@@ -24,7 +27,7 @@ public class RunningConfig implements Configurable{
 	}
 	public RunningConfig reload()
 	{
-		 return ConfigReader.ReadConf(RunningConfig.class, "data/main,conf");
+		 return ConfigReader.ReadConf(RunningConfig.class, "data/main.conf");
 	}
 
 	@Override
@@ -39,6 +42,22 @@ public class RunningConfig implements Configurable{
 	{
 		save();
 		return "";
+	}
+
+	public String getKeyPass() {
+		return keypass;
+	}
+
+	public void setKeyPass(String keyPass) {
+		this.keypass = keyPass;
+	}
+
+	public String getKeyfile() {
+		return keyfile;
+	}
+
+	public void setKeyfile(String keyfile) {
+		this.keyfile = keyfile;
 	}
 
 }

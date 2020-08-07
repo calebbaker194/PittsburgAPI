@@ -1,0 +1,95 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script
+  		src="https://code.jquery.com/jquery-3.3.1.js"
+ 		integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+  		crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <!-- <script src="/js/table.js"></script> -->
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}"/>
+    <link rel="stylesheet" th:href="@{/css/customer.css}"/>
+    <link rel="stylesheet" th:href="@{/css/login.css}"/>
+</head>
+
+<body>
+
+	<!--Navigation bar-->
+	<div id="nav-placeholder">
+
+	</div>
+
+	<script>
+	$(function(){
+	  $("#nav-placeholder").load("/navbar-top.html");
+	});
+	</script>
+	<!--end of Navigation bar-->
+	
+		<div class="limiter">
+		<div class="container-login100">
+			<div class="wrap-login100 p-t-50 p-b-90">
+				<form onsubmit="login()" class="login100-form validate-form flex-sb flex-w">
+					<span class="login100-form-title p-b-51">
+						Regester
+					</span>
+
+					
+					<div class="wrap-input100 validate-input m-b-16" data-validate = "Username is required">
+						<input class="input100" type="text" id="rusername" name="username" placeholder="Username">
+						<span class="focus-input100"></span>
+					</div>
+					<br/>
+					
+					<div class="wrap-input100 validate-input m-b-16" data-validate = "Password is required">
+						<input class="input100" id="rpassword" type="password" name="pass" placeholder="Password">
+						<span class="focus-input100"></span>
+					</div>
+					
+					<div class="flex-sb-m w-full p-t-3 p-b-24">
+						<div class="contact100-form-checkbox">
+							<label class="label-checkbox100" for="ckb1">
+							<input class="input-checkbox100" id="ckb1" type="checkbox" name="remember-me">
+							
+								Remember me
+							</label>
+						</div>
+
+					</div>
+
+					<div class="container-login100-form-btn m-t-17">
+						<button class="login100-form-btn">
+							Submit
+						</button>
+					</div>
+					
+						<div>
+						</div>
+
+				</form>
+			</div>
+		</div>
+	</div>
+</body>
+<script>
+	window.onload = function(){
+		var username = window.localStorage.getItem("cttech-username");
+		document.getElementById("rusername").value = username;
+		
+	}
+
+	function login()
+	{
+		var remeber = document.getElementById("ckb1").checked;
+		if(remember)
+			window.localStorage.setItem('cttech-username', document.getElementById("rusername").value);
+		
+		$.post("/cusomer/regester-user",{username :  document.getElementById("rusername").value ,
+								password: document.getElementById("rpassword").value},
+		function(data) {
+			
+		});
+	}
+</script>

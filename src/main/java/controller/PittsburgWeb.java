@@ -1,9 +1,15 @@
 package controller;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.security.Certificate;
+import java.security.Key;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.SecureRandom;
+import java.security.cert.CertificateFactory;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.regex.Pattern;
@@ -12,16 +18,22 @@ import java.util.regex.Pattern;
 //import org.springframework.boot.autoconfigure.SpringBootApplication;
 import alert.AlertWorker;
 import configuration.ConfigReader;
+import configuration.MainCfg;
 import configuration.RunningConfig;
-import email.ImapServer;
 import helpers.ResultList;
 import helpers.SQL;
-import local.Database;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import objects.PDatabase;
+import security.TokenManager;
 
 import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cglib.core.KeyFactory;
 
-//@SpringBootApplication
+@SpringBootApplication
 public class PittsburgWeb  {
 	
 
@@ -33,55 +45,57 @@ public class PittsburgWeb  {
 		
 		config = ConfigReader.ReadConf(config.getClass(), "data/main.conf");
 		
-		config.activateConfig();
+//		config.activateConfig();
+//		String to  = "it@pittsburgsteel.com";
+//		String from = "mail@sms.pittsburgfoundry.com";
+//		String localhost = "";
+		
+// 		Actual key when i figure it out
+//		CertificateFactory fact = CertificateFactory.getInstance("PKCS7");
+//		FileInputStream is = new FileInputStream("data/cert.p12");
+//		java.security.cert.Certificate cer = fact.generateCertificate(is);
+//		
+		KeyPairGenerator keygen = KeyPairGenerator.getInstance("RSA");
+		keygen.initialize(2056, new SecureRandom());
+		KeyPair pair = keygen.genKeyPair();
+		
+		TokenManager.getInstance().setKeyPair(pair);
+			
+		// Alert Thread
 
 		
-		// Alert Thread
-		Timer alertTimer = new Timer();
-		alertTimer.scheduleAtFixedRate(AlertWorker.instance, 0, 5 * 1000);
-		
 		// Main Application
-//		SpringApplication.run(PittsburgWeb.class, args);	
+		SpringApplication.run(PittsburgWeb.class, args);	
+		
+		PDatabase db = config.getMain().getDatabase();
+		SQL.SQLConnection(db.getName(), db.getHost(), db.getPort(), db.getUsername(), db.getPassword());
+		
 		System.out.println("running");
 	}
 	
-//	SQL.SQLConnection("PittSteel", "192.168.2.6", 5432, "caleb", "tori");
-//	//System.out.println("start");
-//	// itemsite_id,itemsite_plancode_id,itemsite_costcat_id
-//
+//	Timer alertTimer = new Timer();
+//	alertTimer.scheduleAtFixedRate(AlertWorker.instance, 0, 5 * 1000);
+//	
+//	String sql = "";
 //	Scanner in;
-//	Scanner ln;
-//	String output ="";
 //	try
 //	{
-//		in = new Scanner(new File("C:\\workspace\\PittsburgMessenger\\info_blank.csv"));
-//		ln = new Scanner(new File("C:\\workspace\\PittsburgMessenger\\info_blank.csv"));
-//		in.useDelimiter(Pattern.compile("[\\r\\n,]"));
+//		
+//		in = new Scanner(new File("\\\\PSH1\\Documents\\MHOME\\Part_Number_Change.csv"));
+//		in.useDelimiter(",");
+//		System.out.println("start");
 //		while(in.hasNextLine())
 //		{	
-//			String line = ln.nextLine();
-//			in.next();
-//			in.next();
-//			in.next();
-//			in.next();
-//			String bfpitem = in.next();
-//			in.nextLine();
-//			
-//			
-//			ResultList rl = SQL.executeQuery("SELECT item_number,item_descrip1 FROM item JOIN itemalias ON item_id = itemalias_item_id " + 
-//					"WHERE itemalias_number = '"+bfpitem+"'");
-//			
-//			String psitem = (String) rl.get("item_number");
-//			String psdescrip = (String) rl.get("item_descrip1");
-//			
-//			line = line.substring(0,line.indexOf(',')+1) + psitem + ",\"" +psdescrip +"\""+ line.substring(line.indexOf(',')+2);
-//			output+= line+"\n";
-//			
+//			String ItemNum = in.next();
+//			String newItemNum = in.nextLine();
+//			sql+="UPDATE item SET item_number ='"+newItemNum+"' WHERE item_number = '"+ItemNum+"';\n";
 //			
 //		}
-//	}catch(Exception e) {};
+//		System.out.println(sql);
+//	}catch(Exception e) {System.out.print("eh");e.printStackTrace();};
 //	
 //    FileWriter fileWriter = new FileWriter("C:\\workspace\\PittsburgMessenger\\info_full.csv");
 //    PrintWriter printWriter = new PrintWriter(fileWriter);
-//    printWriter.print(output);
+//    printWriter.print(sql);
+
 }

@@ -27,8 +27,10 @@ public class MailMonitor {
     private IdleThread idleThread;
     private ArrayList<MailMonitorAction> actions = new ArrayList<MailMonitorAction>(); 
     
-	public MailMonitor(ImapServer user) {
+	public MailMonitor(ImapServer user, ArrayList<MailMonitorAction> actionList) {
 	
+		actions = actionList;
+		
 		System.out.println("Prepairing to monitor "+user.getAddress());
 		
 	    Properties properties = new Properties();
@@ -64,28 +66,6 @@ public class MailMonitor {
 	                    try // MAIN MESSAGE PARSE LOGIC
 	                    {   
 	                    	
-	                    	String recSpf = message.getHeader("Received-SPF")[0];
-	                    	
-	                    	// IP Check
-	                    	String client = recSpf.substring(recSpf.indexOf("client-ip=")+10).replaceAll("[\\s;]", "");
-	                    	String countryCode = MailCentral.getCountryCode(client);
-	                    	
-	                    	// SPF Check
-	                    	Scanner spfsc = new Scanner(recSpf);
-	                    	String spfResult = spfsc.next();
-	                    	spfsc.close();
-	                    	
-	                    	// Spoof Check
-	                    	String returnPath = message.getHeader("Return-Path")[0];
-	                    	String returnPathAddress = "";
-	                    	try 
-	                    	{
-	                    		returnPathAddress = returnPath.substring(returnPath.indexOf('<')+1,returnPath.indexOf('>'));
-	                    	}
-	                    	catch(StringIndexOutOfBoundsException err)
-	                    	{
-	                    		returnPathAddress = returnPath;
-	                    	}
 	                    	String fromField = message.getFrom()[0].toString();
 	                    	String fromFieldAddress = "";
 	                    	try 
@@ -96,8 +76,6 @@ public class MailMonitor {
 	                    	{
 	                    		fromFieldAddress = fromField;
 	                    	}
-	                    	
-	                    	String domain = fromFieldAddress.substring(fromFieldAddress.indexOf('@')+1);
 	                    	
 	                    	// Macro Check
 	                    	int macroCount = 0;
@@ -123,47 +101,9 @@ public class MailMonitor {
 		                    	}
 	                    	}
 	                    	
-	                    	//TODO - Phishing Check 
-	                    	
-	                    	// Notify Results
-	                    	int check=0;
-	                    	
-	                    	check+= Database.checkApprovedDomain(countryCode, domain) ? 0 : 1;
-	                    	check+= spfResult.equalsIgnoreCase("pass") || spfResult.equalsIgnoreCase("softfail") || spfResult.equalsIgnoreCase("neutral") || spfResult.equalsIgnoreCase("none") ? 0 : 2;
-	                    	check+= checkDomainSpoof(fromFieldAddress, returnPath, domain) ? 0 : 4;
-	                    	check+= macroCount > 0 ? 8 : 0 ;
-	                    	
-	                    	for(MailMonitorAction act : actions)
+	                    	for(MailMonitorAction action : actions)
 	                    	{
-	                    		act.check(message);
-	                    	}
-	                    	
-	                    	if(check != 0)
-	                    	{
-	                    		HashMap<String, String> tmp = new HashMap<String, String>();
-	                    		tmp.put("domain", domain);
-	                    		tmp.put("spfResult", spfResult);
-	                    		tmp.put("countryCode", countryCode);
-	                    		tmp.put("returnPath", returnPathAddress);
-	                    		tmp.put("from", fromFieldAddress);
-	                    		
-	                    		String recp = "";
-	                    		for(Address s : message.getAllRecipients())
-	                    		{
-	                    			recp += s.toString()+",";
-	                    		}
-	                    		
-	                    		tmp.put("to", recp.substring(0,recp.length()-1));
-	                    		tmp.put("subject", message.getSubject());
-	                    		tmp.put("body", MailCentral.getBody(message));
-	                    		tmp.put("macroCount",""+macroCount);
-	                    		
-	                    		for(int x=0; x<macroCount; x++)
-	                    		{
-	                    			tmp.put("infected"+x,corrupt.get(x).getName());
-	                    		}
-	                    		//TODO: 
-	                    		//Notifier.notify(check, tmp);
+	                    		action.check(message);
 	                    	}
 	                    	
 	                    }
@@ -177,12 +117,6 @@ public class MailMonitor {
 	                    }
 	                }
 	            }
-
-				private boolean checkDomainSpoof(String fromFieldAddress, String returnPath, String domain)
-				{
-					return !(returnPath.equals(fromFieldAddress)
-						|| returnPath.matches("^.*[\\.@]"+domain+"$"));
-				}
 	        });
 	
 	        idleThread = new IdleThread(inbox, user);

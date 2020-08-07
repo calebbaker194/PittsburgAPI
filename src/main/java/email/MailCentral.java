@@ -9,13 +9,20 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.util.Properties;
+import javax.mail.search.SearchTerm;
+import com.sun.mail.gimap.GmailMsgIdTerm;
 import javax.mail.BodyPart;
+import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessageRemovedException;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
+import javax.mail.NoSuchProviderException;
 import javax.mail.Part;
+import javax.mail.Session;
+import javax.mail.Store;
+import javax.mail.internet.MimeBodyPart;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -30,7 +37,11 @@ public class MailCentral {
 	
 	private static HashMap<String, String> ipData = new HashMap<String, String>();
 	private static String accessKey = FetchNStore.readAccessKey();
-	
+	public static ArrayList<ImapServer> accounts;
+	static {
+		accounts = new ArrayList<ImapServer>();
+		accounts.add(new ImapServer(true,"192.168.2.6",443,"192.168.2.6",23,"imaps","smtps","smsmail","smsmail@smsmail.pittsteel.com","Sms","Arcon194!($",true));
+	}
 	
 	public static String getCountryCode(String ipAddress) {
         URL url;
@@ -194,5 +205,37 @@ public class MailCentral {
 			e.printStackTrace();
 		}
 	    return result;
+	}
+	
+	public static Message getMessageById(Long id)
+	{
+		for(ImapServer account : accounts)
+		{
+			Properties props = new Properties();
+			props.put("mail.imap.host", account.getImapHost());
+			props.put("mail.imap.port", account.getImapPort());
+			props.put("mail.imap.starttls.enable", account.isStarttls());
+			Session emailSession = Session.getDefaultInstance(props);
+			try {
+				Store store = emailSession.getStore("imap");
+				store.connect();
+				Folder inbox = store.getFolder("INBOX");
+				inbox.open(Folder.READ_ONLY);
+				GmailMsgIdTerm t = new GmailMsgIdTerm(id);
+				Message[] messages = inbox.search(t);
+				if(messages.length > 0 )
+				{
+					return messages[0];
+				}
+			} catch (NoSuchProviderException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (MessagingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		return null;
 	}
 }

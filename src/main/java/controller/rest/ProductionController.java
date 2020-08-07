@@ -53,7 +53,7 @@ public class ProductionController {
 		if(!id.equals("all"))
 			filter += " AND station_id = "+id;
 			
-		ResultList r = SQL.executeQuery("SELECT station_id, station_name, station_mac FROM psproductivity.station " + filter + pageFilter);
+		ResultList r = SQL.executeQuery("SELECT station_id, station_name, station_mac, station_ip_addr FROM psproductivity.station " + filter + pageFilter);
 		
 		for(HashMap<String,Object> monitor : r)
 		{
@@ -66,8 +66,14 @@ public class ProductionController {
 			((ObjectNode) j).put("DT_RowId", +m.getStationId());
 			((ObjectNode) j).put("station_name", m.getName());
 			String tpm = Long.toHexString(Long.parseLong(m.getMac().equals("")? "-1" : m.getMac()));
+			try
+			{
 			tpm = tpm.replaceAll("(.{2})", "$1"+"\\:").substring(0,17);
-			System.out.println(tpm);
+			}
+			catch(IndexOutOfBoundsException ex)
+			{
+				// dont want to do anything. whatever incorrect mac address is in there we want to keep for now
+			}
 			((ObjectNode) j).put("station_mac", tpm);
 			((ObjectNode) j).put("station_ip", m.getIp());	
 			list.add(j);
@@ -87,11 +93,12 @@ public class ProductionController {
 	}
 	
 	@RequestMapping(path = "/production/get-monitor-data/{id}", method = RequestMethod.POST)
-	public static ArrayList<ObjectNode> prodmanData(@PathVariable int id, @RequestParam Timestamp start, @RequestParam Timestamp stop)
+	public static ArrayList<ObjectNode> prodmanData(@PathVariable int id, @RequestParam String start, @RequestParam String stop)
 	{
 		try
 		{
-		ArrayList<ObjectNode> n = ProductionMonitor.dataRequest(start, stop, id);
+		ArrayList<ObjectNode> n = ProductionMonitor.dataRequest(Timestamp.valueOf(start), Timestamp.valueOf(stop), id);
+		System.out.println("returning");
 		return n;
 		}
 		catch(Exception e)

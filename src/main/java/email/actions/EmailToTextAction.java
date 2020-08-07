@@ -124,10 +124,12 @@ public class EmailToTextAction extends MailMonitorAction{
 				    // Iterator through attachments and send them
 				    if(!(attachments == null || attachments.size() < 1))
 				    {
+				    	ArrayList<String> tlist = new ArrayList<String>();
 				    	for(File tempfile : attachments)
 				    	{
-				    		phone.send(new TextMessage(parsedReply,phoneNumber,tempfile.getName()));
+				    		tlist.add(tempfile.getName());
 				    	}
+				    	phone.send(new TextMessage(parsedReply,phoneNumber,tlist));
 				    }
 					
 					// Mark As Answered

@@ -5,6 +5,7 @@ public abstract class Sender
 {
 	private long id;
 	private String name;
+	private String number;
 
 	public long getId()
 	{
@@ -30,5 +31,13 @@ public abstract class Sender
 	
 	//@RequestMapping(path = "/get-sender-by-id", method = RequestMethod.POST)
 	public abstract Sender getSenderById();
+
+	public String getNumber() {
+		return number;
+	}
+
+	public void setNumber(String number) {
+		this.number = number;
+	}
 
 }

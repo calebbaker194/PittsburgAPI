@@ -13,6 +13,7 @@
     <link rel="stylesheet" th:href="@{/css/bootstrap.css}"/>
     <link rel="stylesheet" th:href="@{/css/customer.css}"/>
     <link rel="stylesheet" th:href="@{/css/table.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body>
@@ -43,51 +44,28 @@
 	</div>
 	
 	<div id="mySidenav" class="sidenav bg-primary">
-		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-		<a href="#">Open Orders</a>
-		<a href="#">Credit</a>
-		<a href="#" class="active">Items</a>
-		<a href="#">Contact</a>
+		<a id="sideclose" href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+		<a id="sideorder" href="javascript:void(0)" onclick="setUpOrderTable()">Open Orders</a>
+		<a id="sidecredit" href="#">Credit</a>
+		<a id="sideitem" href="javascript:void(0)" class="active"  onclick="setUpItemTable()">Items</a>
+		<a id="sidecontact" href="#">Contact</a>
 	</div>
 </body>
 <script>
 var table = null;
-/*$(document).ready(function() {
-	table = 
-	$('#datatable').DataTable( {
-		processing: true,
-		serverSide: true,
-		searchDelay: 1000,
-		ajax: { 
-			url: "/customer/get-item-page",
-			type: "POST",
-	        "data": function(data) {
-	            planify(data);  
-	        }
-		},
-		columns: [
-			{data: "item_number"},
-			{data: "item_descrip1"},
-			{data: "item_listprice"},
-			{data: "item_qoh"}
-		],
-		"iDisplayLength": 30
-	});
-	
-	$('#datatable_filter input').unbind();
-	$('#datatable_filter input').bind('keyup', function(e) {
-	if(e.keyCode == 13) {
-		table.search(this.value).draw();	
-	}
-	});	
-});*/
+var isOrders = true;
 
 $(document).ready(function() {
-	
-	setUpItemTable()
+	setUpItemTable();
 });
 
 function setUpItemTable() {
+	
+	$(".active").removeClass( "active" );
+	$("#sideitem").addClass("active");
+	
+	if(table)
+		table.destroy();
 	
 	$("#table-head").empty();
 	
@@ -96,12 +74,18 @@ function setUpItemTable() {
     		"Item Number" +
    			"</th>" +
    			"<th>" +
-    		"Description" +
+    		"Customer Number" +
    			"</th>" +
    			"<th>" +
+    		"Description" +
+   			"</th>" +
+   			'<th align="center">' +
     		"Price" +
    			"</th>" +
    			"<th>" +
+    		"UOM" +
+   			"</th>" +
+   			'<th align="center">' +
     		"QOH" +
    			"</th>");
 	
@@ -114,14 +98,27 @@ function setUpItemTable() {
 				url: "/customer/get-item-page",
 				type: "POST",
 		        "data": function(data) {
-		            planify(data);  
+		            planify(data);
+		            data.test = "test"
 		        }
 			},
 			columns: [
 				{data: "item_number"},
+				{data: "itemalias_number"},
 				{data: "item_descrip1"},
-				{data: "item_listprice"},
-				{data: "item_qoh"}
+				{data: "item_listprice", render: $.fn.dataTable.render.number(',','.',4, '$')},
+				{data: "item_uom"},
+				{data: "item_qoh", render: $.fn.dataTable.render.number(',','.',2, '')}
+			],
+			columnDefs: [
+				{
+					targets: 3,
+					className: 'dt-body-right'
+				},
+				{
+					targets: 5,
+					className: 'dt-body-right'
+				}
 			],
 			"iDisplayLength": 30
 		});
@@ -136,9 +133,18 @@ function setUpItemTable() {
 
 function setUpOrderTable() {
 	
+	$(".active").removeClass( "active" );
+	$("#sideorder").addClass("active");
+	
+	if(table)
+		table.destroy();
+	
 	$("#table-head").empty();
 	
 	$("#table-head").append(
+			'<th>' +
+			'<i class="fa">&#xf201;</i>'+
+   			"</th>" +
 			"<th>" +
     		"Sales Order" +
    			"</th>" +
@@ -149,13 +155,10 @@ function setUpOrderTable() {
     		"Ordered" +
    			"</th>" +
    			"<th>" +
-    		"Shipped" +
+    		"OrderDate" +
    			"</th>" +
    			"<th>"+
-   			"Item"+
-   			"</th>"+
-   			"<th>"+
-   			"Item Description"+
+   			"ShipTo"+
    			"</th>");
 	
 	table = 
@@ -171,12 +174,17 @@ function setUpOrderTable() {
 		        }
 			},
 			columns: [
+				{
+					"className": 'details-control',
+					"orderable": false,
+					"data": null,
+					"defaultContent": '<i class="fa fa-plus-square-o" style="font-size:24px"></i>'
+				},
 				{data: "cohead_number"},
-				{data: "cohead_custponumber"},
-				{data: "coitem_qtyord"},
-				{data: "coitem_qtyshipped"},
-				{data: "item_number"},
-				{data: "item_descrip1"}
+				{data: "cohead_custpo"},
+				{data: "test"},
+				{data: "cohead_orderdate"},
+				{data: "cohead_shipto"}
 			],
 			"iDisplayLength": 30
 		});
@@ -189,7 +197,43 @@ function setUpOrderTable() {
 		});	
 }
 
+$('#datatable tbody').on('click', 'td.details-control', function () {
+	if(!isOrders)
+		return;
+	
+    var tr = $(this).closest('tr');
+    var row = table.row( tr );
 
+    if ( row.child.isShown() ) {
+        // This row is already open - close it
+        row.child.hide();
+        tr.removeClass('shown');
+    }
+    else {
+        
+    	console.log(row.data())
+        tr.addClass('shown');
+        
+    	$.post("/customer/orders/get-order-items",{"cohead_id" : row.data().DT_RowId.substring(4)},function(oidata) {
+    		var children = '<table cellpadding="5" border ="0" width="100%">\n'
+    		+"<tr> <th>Line Number</th> <th>Item#</th> <th>Scheduled Date</th> <th>Qty Ord</th> <th>Qty Shipped</th> <th>UOM</th></tr>";
+    		for(var orderItem in oidata)
+    		{
+    			children += '<tr>\n'
+    					  + '<td>' +oidata[orderItem].coitem_linenumber+ '</td>\n'
+    					  + '<td>' +oidata[orderItem].coitem_item_nubmber+ '</td>\n'
+    					  + '<td>' +oidata[orderItem].coitem_scheddate+ '</td>\n'
+    					  + '<td align="right">' +oidata[orderItem].coitem_qtyord+ '</td>\n'
+    					  + '<td align="right">' +oidata[orderItem].coitem_qtyshipped+ '</td>\n'
+    					  + '<td align="center">' +oidata[orderItem].coitem_uom+ '</td>\n'
+    					  + '<tr>\n';
+    			
+    		}
+    		children += '</table>';
+    		row.child(children).show();
+    	});
+    }
+} );
 
 function planify(data) {
     for (var i = 0; i < data.columns.length; i++) {
@@ -198,6 +242,7 @@ function planify(data) {
         column.searchValue = column.search.value;
         delete(column.search);
     }
+    data.search.isPriced = "true";
 }
 
 </script>
