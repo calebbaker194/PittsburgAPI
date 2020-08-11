@@ -117,6 +117,8 @@ public class SQL {
 					r.addRow();
 					r.put("error",e.getMessage());
 					System.err.println("Query Failed: " + e.getMessage());
+					System.err.println(e.getStackTrace()[7]);
+					System.err.println(query);
 					return r;
 				}
 			}

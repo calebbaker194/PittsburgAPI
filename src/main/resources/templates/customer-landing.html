@@ -9,6 +9,7 @@
     </script>
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
     <script src="/js/sidebar.js"></script>
+    <script src="/js/chartist.js"></script>
     <!-- <script src="/js/table.js"></script> -->
     <link rel="stylesheet" th:href="@{/css/bootstrap.css}"/>
     <link rel="stylesheet" th:href="@{/css/customer.css}"/>
@@ -31,6 +32,30 @@
 	<!--end of Navigation bar-->
 	
 	<div class="c-page">
+	    <div id="creditinfo" class="d-none" style="">
+	    	<div style="float: left; padding-bottom: 20px">
+	    		<table border="1">
+	    			<tr>
+	    				<th style="padding-right: 20px">Credit limit</th><td width="120px" id="tdcreditlimit"></td>
+	    			</tr>
+	    			<tr>
+	    				<th style="padding-right: 20px">Open Invoices</th><td width="120px" id="tdopencredit"></td>
+	    			</tr>
+	    			<tr>
+	    				<th style="padding-right: 20px">Overdue</th><td width="120px" id="tdoverdue"></td>
+	    			</tr>
+	    			<tr>
+	    				<th style="padding-right: 20px">Remaining</th><td width="120px" id="tdremaining"></td>
+	    			</tr>
+	    		</table>
+	    	</div>
+	    	<div style="float: right ; padding-bottom: 20px">
+	    	Invoice Distribution
+	    		past due 
+	    		due this week
+	    		open
+	    	</div>
+	    </div>
 		<table id="datatable" class="display table table-striped table-bordered table-resizable">
 			<thead>
 		    	<tr id="table-head">
@@ -40,27 +65,122 @@
 		 		<tr>
    				</tr>
   				</tbody>
-			</table>
+		</table>
 	</div>
 	
 	<div id="mySidenav" class="sidenav bg-primary">
 		<a id="sideclose" href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
 		<a id="sideorder" href="javascript:void(0)" onclick="setUpOrderTable()">Open Orders</a>
-		<a id="sidecredit" href="#">Credit</a>
+		<a id="sidecredit" href="javascript:void(0)" onclick="setUpCreditTable()">Credit</a>
 		<a id="sideitem" href="javascript:void(0)" class="active"  onclick="setUpItemTable()">Items</a>
 		<a id="sidecontact" href="#">Contact</a>
 	</div>
 </body>
 <script>
 var table = null;
-var isOrders = true;
+var activetab = 0;
 
 $(document).ready(function() {
 	setUpItemTable();
 });
 
+function setUpCreditTable(){
+	activetab = 2
+	$("#creditinfo").removeClass("d-none")
+	$(".active").removeClass( "active" );
+	$("#sidecredit").addClass("active");
+	
+	var self = this;
+	
+	$.ajax({
+		dataType: "json",
+		method: "POST",
+		url: "/customer/get-credit-info",
+	}).done(function(creditData)
+	{		  
+		$('#tdcreditlimit').html('<span style="float : left">$</span><span style="float : right">'+creditData.creditlimit.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")+'</span>');
+		$('#tdopencredit').html('<span style="float : left">$</span><span style="float : right">'+creditData.opencredit.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")+'</span>');
+		$('#tdoverdue').html('<span style="float : left">$</span><span style="float : right">'+creditData.overdue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")+'</span>');
+		$('#tdremaining').html('<span style="float : left">$</span><span style="float : right">'+creditData.availablecredit.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")+'</span>');
+		
+		new Chartist.Pie('.ct-chart', {
+			series: [creditData.availablecredit,creditData.opencredit-creditData.overdue,creditData.overdue]
+		},{
+			donut: true,
+			donutWidth: 60,
+			startAngle: 270,
+			total: creditData.creditlimit,
+			showLabel: true
+		});
+
+	});
+	
+	
+	
+	if(table)
+		table.destroy();
+	
+	$("#table-head").empty();
+	
+	$("#table-head").append(
+			'<th>' +
+			'<i class="fa">&#xf201;</i>'+
+   			"</th>" +
+			"<th>" +
+			"Invoice Number" +
+			"</th>"+
+			'<th align="right">' +
+			'Total ' +
+			"</th>"+
+			'<th align="right">' +
+			"Amount paid" +
+			"</th>"+
+			'<th align="right">' +
+			"Amount due" +
+			"</th>"+
+			'<th align="center">' +
+			"Due Date" +
+			"</th>");
+	
+	table = 
+		$('#datatable').DataTable( {
+			processing: true,
+			serverSide: false,
+			searchDelay: 1500,
+			ajax: {
+				url: "/customer/get-open-invoices",
+				type: "POST",
+
+			},
+			columns:[
+				{
+					"className": 'details-control',
+					"orderable": false,
+					"data": null,
+					"defaultContent": '<i class="fa fa-plus-square-o" style="font-size:24px"></i>'
+				},
+				{data: "invchead_invcnumber"},
+				{data: "invc_total", render: $.fn.dataTable.render.number(',','.',2, '$')},
+				{data: "invc_paid", render: $.fn.dataTable.render.number(',','.',2, '$')},
+				{data: "invc_due", render: $.fn.dataTable.render.number(',','.',2, '$')},
+				{data: "invc_duedate"}
+			],
+			"iDisplayLength": 30
+			
+		})
+		
+	$('#datatable_filter input').unbind();
+	$('#datatable_filter input').bind('keyup', function(e) {
+	if(e.keyCode == 13) {
+	table.search(this.value).draw();	
+	}
+	});	
+}
+
 function setUpItemTable() {
 	
+	$("#creditinfo").addClass("d-none")
+	activetab = 3
 	$(".active").removeClass( "active" );
 	$("#sideitem").addClass("active");
 	
@@ -132,7 +252,8 @@ function setUpItemTable() {
 }
 
 function setUpOrderTable() {
-	
+	activetab = 1;
+	$("#creditinfo").addClass("d-none")
 	$(".active").removeClass( "active" );
 	$("#sideorder").addClass("active");
 	
@@ -198,42 +319,76 @@ function setUpOrderTable() {
 }
 
 $('#datatable tbody').on('click', 'td.details-control', function () {
-	if(!isOrders)
-		return;
+	if(activetab == 2)
+	{
+	    var tr = $(this).closest('tr');
+	    var row = table.row( tr );
 	
-    var tr = $(this).closest('tr');
-    var row = table.row( tr );
-
-    if ( row.child.isShown() ) {
-        // This row is already open - close it
-        row.child.hide();
-        tr.removeClass('shown');
-    }
-    else {
-        
-    	console.log(row.data())
-        tr.addClass('shown');
-        
-    	$.post("/customer/orders/get-order-items",{"cohead_id" : row.data().DT_RowId.substring(4)},function(oidata) {
-    		var children = '<table cellpadding="5" border ="0" width="100%">\n'
-    		+"<tr> <th>Line Number</th> <th>Item#</th> <th>Scheduled Date</th> <th>Qty Ord</th> <th>Qty Shipped</th> <th>UOM</th></tr>";
-    		for(var orderItem in oidata)
-    		{
-    			children += '<tr>\n'
-    					  + '<td>' +oidata[orderItem].coitem_linenumber+ '</td>\n'
-    					  + '<td>' +oidata[orderItem].coitem_item_nubmber+ '</td>\n'
-    					  + '<td>' +oidata[orderItem].coitem_scheddate+ '</td>\n'
-    					  + '<td align="right">' +oidata[orderItem].coitem_qtyord+ '</td>\n'
-    					  + '<td align="right">' +oidata[orderItem].coitem_qtyshipped+ '</td>\n'
-    					  + '<td align="center">' +oidata[orderItem].coitem_uom+ '</td>\n'
-    					  + '<tr>\n';
-    			
-    		}
-    		children += '</table>';
-    		row.child(children).show();
-    	});
-    }
-} );
+	    if ( row.child.isShown() ) {
+	        // This row is already open - close it
+	        row.child.hide();
+	        tr.removeClass('shown');
+	    }
+	    else {
+	        tr.addClass('shown');
+	        
+	    	$.post("/customer/invoices/get-invoice-items",{"invchead_id" : row.data().DT_RowId.substring(4)},function(iidata) {
+	    		var children = '<table cellpadding="5" border ="0" width="100%">\n'
+	    		+"<tr> <th>Line Number</th> <th>Item#</th> <th>Qty Ord</th> <th>Qty billed</th> <th>Total</th> <th>Paid</th> <th>Balance</th></tr>";
+	    		for(var invcitem in iidata)
+	    		{
+	    			children += '<tr>\n'
+	    					  + '<td>' +iidata[invcitem].invcitem_linenumber+ '</td>\n'
+	    					  + '<td>' +iidata[invcitem].item_number+ '</td>\n'
+	    					  + '<td>' +iidata[invcitem].invcitem_ordered+ '</td>\n'
+	    					  + '<td>' +iidata[invcitem].invcitem_billed+ '</td>\n'
+	    					  + '<td>' +iidata[invcitem].invcitem_total+ '</td>\n'
+	    					  + '<td>' +iidata[invcitem].invcitem_paid+ '</td>\n'
+	    					  + '<td>' +iidata[invcitem].invcitem_balance+ '</td>\n'
+	    					  + '<tr>\n';
+	    			
+	    		}
+	    		children += '</table>';
+	    		row.child(children).show();
+	    	});
+	    }
+	}
+	if(activetab == 1)
+	{
+	    var tr = $(this).closest('tr');
+	    var row = table.row( tr );
+	
+	    if ( row.child.isShown() ) {
+	        // This row is already open - close it
+	        row.child.hide();
+	        tr.removeClass('shown');
+	    }
+	    else {
+	        
+	    	console.log(row.data())
+	        tr.addClass('shown');
+	        
+	    	$.post("/customer/orders/get-order-items",{"cohead_id" : row.data().DT_RowId.substring(4)},function(oidata) {
+	    		var children = '<table cellpadding="5" border ="0" width="100%">\n'
+	    		+"<tr> <th>Line Number</th> <th>Item#</th> <th>Scheduled Date</th> <th>Qty Ord</th> <th>Qty Shipped</th> <th>UOM</th></tr>";
+	    		for(var orderItem in oidata)
+	    		{
+	    			children += '<tr>\n'
+	    					  + '<td>' +oidata[orderItem].coitem_linenumber+ '</td>\n'
+	    					  + '<td>' +oidata[orderItem].coitem_item_nubmber+ '</td>\n'
+	    					  + '<td>' +oidata[orderItem].coitem_scheddate+ '</td>\n'
+	    					  + '<td align="right">' +oidata[orderItem].coitem_qtyord+ '</td>\n'
+	    					  + '<td align="right">' +oidata[orderItem].coitem_qtyshipped+ '</td>\n'
+	    					  + '<td align="center">' +oidata[orderItem].coitem_uom+ '</td>\n'
+	    					  + '<tr>\n';
+	    			
+	    		}
+	    		children += '</table>';
+	    		row.child(children).show();
+	    	});
+	    }
+	}
+});
 
 function planify(data) {
     for (var i = 0; i < data.columns.length; i++) {

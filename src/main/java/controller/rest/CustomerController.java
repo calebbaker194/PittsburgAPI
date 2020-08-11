@@ -13,13 +13,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import helpers.DataTableRequest;
+import helpers.Mapper;
+import helpers.ResultList;
+import helpers.SQL;
+import objects.CustInvoice;
 import objects.Customer;
 import security.LoginManager;
 import security.TokenManager;
 import table.DataTable;
+import xtuple.XInvoice;
 import xtuple.XItem;
 import xtuple.XSalesOrder;
 import xtuple.XSalesOrderItem;
@@ -52,6 +56,88 @@ public class CustomerController {
 		return t;
 	}
 	
+	@RequestMapping(path = "/customer/get-open-invoices", method = RequestMethod.POST)
+	public DataTable getInvoicePage(@ModelAttribute DataTableRequest dr, @CookieValue(value="cttech-pittsteel-token" , defaultValue="-1") String token,HttpServletResponse response)
+	{
+		DataTable d = new DataTable();
+		
+		JSONObject tk = token.equals("-1") ? null : TokenManager.validToken(token);
+		if(tk == null)
+		{
+			try {
+				response.sendRedirect("/customer/login/");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		ArrayList<CustInvoice> invoices = XInvoice.getOpenInvoices((Integer) tk.get("cust_id"));
+		
+		d.setRecordsTotal(invoices.size());
+		d.setRecordsFiltered(invoices.size());
+		d.setDraw(d.getDraw());
+		
+		ArrayList<JsonNode> list = new ArrayList<JsonNode>();
+		
+		for(CustInvoice invoice: invoices)
+		{
+			JsonNode j = Mapper.OM.createObjectNode();
+			((ObjectNode) j).put("DT_RowId", "row_"+invoice.getAropen_id());
+			((ObjectNode) j).put("invchead_invcnumber", ""+invoice.getDocnumber());
+			((ObjectNode) j).put("invc_total", invoice.getAmount());
+			((ObjectNode) j).put("invc_paid", invoice.getPaid());
+			((ObjectNode) j).put("invc_due", invoice.getBalance());
+			((ObjectNode) j).put("invc_duedate", ""+invoice.getDuedate());
+			list.add(j);
+		}
+		
+		
+		d.setData(list);
+		
+		return d;
+	}
+
+	@RequestMapping(path = "/customer/get-credit-info", method = RequestMethod.POST)
+	public JsonNode getCustCreditInfo(@CookieValue(value="cttech-pittsteel-token" , defaultValue="-1") String token, HttpServletResponse response)
+	{
+		JSONObject tk = token.equals("-1") ? null : TokenManager.validToken(token);
+		if(tk == null)
+		{
+			try {
+				response.sendRedirect("/customer/login/");
+				return null;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		ResultList rl = SQL.executeQuery("SELECT *,creditlimit - opencredit AS availablecredit FROM \r\n" + 
+				"(SELECT \r\n" + 
+				"(SELECT cst.cust_creditlmt FROM custinfo cst WHERE cst.cust_id = "+tk.get("cust_id")+") AS creditlimit,\r\n" + 
+				"SUM(CASE WHEN duedate < NOW() THEN balance ELSE 0 END) AS overdue,\r\n" + 
+				"SUM(balance) AS opencredit\r\n" + 
+				"FROM (  \r\n" + 
+				"	SELECT\r\n" + 
+				"		   aropen_duedate AS duedate,  \r\n" + 
+				"		   (aropen_amount - aropen_paid) AS balance  \r\n" + 
+				"	FROM aropen  \r\n" + 
+				"	WHERE ( (aropen_cust_id="+tk.get("cust_id")+"  \r\n" + 
+				"	AND aropen_doctype = 'I')  \r\n" + 
+				"	AND aropen_open  \r\n" + 
+				"))AS data) AS info  ");
+		
+		JsonNode creditinfo = Mapper.OM.createObjectNode();
+		
+		((ObjectNode) creditinfo).put("creditlimit",rl.getInt("creditlimit"));
+		((ObjectNode) creditinfo).put("overdue",rl.getDouble("overdue"));
+		((ObjectNode) creditinfo).put("opencredit",rl.getDouble("opencredit"));
+		((ObjectNode) creditinfo).put("availablecredit",rl.getDouble("availablecredit"));
+		
+		
+		return creditinfo;
+		
+	}
+	
 	@RequestMapping(path = "/customer/get-orders-page", method = RequestMethod.POST)
 	public DataTable getOrderPage(@ModelAttribute DataTableRequest dr, @CookieValue(value="cttech-pittsteel-token" , defaultValue="-1") String token,HttpServletResponse response)
 	{
@@ -77,12 +163,11 @@ public class CustomerController {
 		d.setDraw(dr.getDraw());
 		
 		ArrayList<JsonNode> list = new ArrayList<JsonNode>();
-		ObjectMapper mapper = new ObjectMapper();
 
 		
 		for(XSalesOrder order: orders)
 		{
-			JsonNode j = mapper.createObjectNode();
+			JsonNode j = Mapper.OM.createObjectNode();
 			((ObjectNode) j).put("DT_RowId", "row_"+order.getId());
 			((ObjectNode) j).put("cohead_number", ""+order.getNumber());
 			((ObjectNode) j).put("cohead_custpo", ""+order.getCustponumber());
@@ -121,12 +206,12 @@ public class CustomerController {
 		d.setDraw(dr.getDraw());
 		
 		ArrayList<JsonNode> list= new ArrayList<JsonNode>();
-		ObjectMapper mapper = new ObjectMapper();
+
 		
 		
 		for(XItem item : items)
 		{
-			JsonNode j = mapper.createObjectNode();
+			JsonNode j = Mapper.OM.createObjectNode();
 			((ObjectNode) j).put("DT_RowId", "row_"+item.getId());
 			((ObjectNode) j).put("item_number", item.getNumber());
 			((ObjectNode) j).put("itemalias_number", item.getAlias());
@@ -158,7 +243,6 @@ public class CustomerController {
 			}
 		}
 		
-		ObjectMapper m = new ObjectMapper();
 		
 		ArrayList<XSalesOrderItem> xsois = XSalesOrderItem.getXSalseOrderItems(cohead_id);
 		
@@ -167,7 +251,7 @@ public class CustomerController {
 		for(XSalesOrderItem xsoi : xsois)
 		{
 			
-			JsonNode j = m.createObjectNode();
+			JsonNode j = Mapper.OM.createObjectNode();
 			((ObjectNode) j).put("DT_RowId", "row_"+xsoi.getId());
 			((ObjectNode) j).put("coitem_linenumber", xsoi.getLinenumber());
 			((ObjectNode) j).put("coitem_item_nubmber", xsoi.getItem_number());
