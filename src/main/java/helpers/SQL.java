@@ -131,6 +131,7 @@ public class SQL {
 			return null;
 		}
 	}
+	
 	public static String getPassword() {
 		return password;
 	}

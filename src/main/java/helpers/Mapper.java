@@ -16,6 +16,7 @@ import controller.PittsburgWeb;
 
 public class Mapper{
 
+	public static final ObjectMapper OM = new ObjectMapper();
 	private static HashMap<String,String> numToEmail = new HashMap<String,String>();
 	private static HashMap<String,String> emailToNum = new HashMap<String,String>();
 	public static final String DEFAUTL_MAP_LOCATION = "config/maps.conf";

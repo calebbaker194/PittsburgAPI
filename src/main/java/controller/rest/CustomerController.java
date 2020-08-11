@@ -1,6 +1,8 @@
 package controller.rest;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.servlet.http.Cookie;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import helpers.DataTableRequest;
 import helpers.Mapper;
@@ -56,6 +59,63 @@ public class CustomerController {
 		return t;
 	}
 	
+	@RequestMapping(path = "/customer/get-invoice-detail", method = RequestMethod.POST)
+	public ArrayList<JsonNode> getInvoiceDetail(@CookieValue(value="cttech-pittsteel-token" , defaultValue="-1") String token,@RequestParam String invchead_invcnumber,HttpServletResponse response)
+	{
+		if(invchead_invcnumber == null || invchead_invcnumber.equals(""))
+			return null;
+		
+		JSONObject tk = token.equals("-1") ? null : TokenManager.validToken(token);
+		if(tk == null)
+		{
+			try {
+				response.sendRedirect("/customer/login/");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		String sql = "SELECT \r\n" + 
+				"invchead_invcnumber||'-'||invcitem_linenumber AS invoice,\r\n" + 
+				"cohead_number||'-'||coitem_linenumber AS salesorder,\r\n" + 
+				"cohead_custponumber AS ponumber,\r\n" + 
+				"item_number, \r\n" + 
+				"itemalias_number,\r\n" + 
+				"formatqty(invcitem_billed) || (SELECT ' '||uom_name FROM uom WHERE uom_id = invcitem_qty_uom_id) AS billed,\r\n" + 
+				"invcitem_price * invcitem_billed AS price\r\n" + 
+				"FROM invcitem\r\n" + 
+				"JOIN invchead ON (invcitem_invchead_id = invchead_id)\r\n" + 
+				"JOIN item ON invcitem_item_id = item_id\r\n" + 
+				"JOIN crmacct ON crmacct_cust_id = "+tk.get("cust_id")+"\r\n" + 
+				"LEFT JOIN coitem ON coitem_id = invcitem_coitem_id\r\n" + 
+				"LEFT JOIN cohead ON coitem_cohead_id = cohead_id\r\n" + 
+				"LEFT JOIN itemalias ON (itemalias_item_id = item_id AND crmacct_id = itemalias_crmacct_id) \r\n" + 
+				"WHERE invchead_cust_id = "+tk.get("cust_id")+"\r\n" + 
+				"AND invchead_invcnumber = '"+invchead_invcnumber+"'";
+		
+		ResultList rl = SQL.executeQuery(sql);
+		
+		ArrayList<JsonNode> invcitems = new ArrayList<JsonNode>();
+		
+		rl.first();
+		
+		do
+		{
+			JsonNode invcitem = Mapper.OM.createObjectNode();
+			((ObjectNode)invcitem).put("invcnum",rl.getString("invoice"));
+			((ObjectNode)invcitem).put("sonum",rl.getString("salesorder"));
+			((ObjectNode)invcitem).put("ponum",rl.getString("ponumber"));
+			((ObjectNode)invcitem).put("itemnum",rl.getString("item_number"));
+			((ObjectNode)invcitem).put("aliasnum",rl.getString("itemalias_number"));
+			((ObjectNode)invcitem).put("billed",rl.getString("billed"));
+			((ObjectNode)invcitem).put("price",rl.getDouble("price"));
+			invcitems.add(invcitem);
+		}
+		while(rl.next());
+		
+		return invcitems;
+	}
+	
 	@RequestMapping(path = "/customer/get-open-invoices", method = RequestMethod.POST)
 	public DataTable getInvoicePage(@ModelAttribute DataTableRequest dr, @CookieValue(value="cttech-pittsteel-token" , defaultValue="-1") String token,HttpServletResponse response)
 	{
@@ -79,6 +139,8 @@ public class CustomerController {
 		
 		ArrayList<JsonNode> list = new ArrayList<JsonNode>();
 		
+		DateFormat df = new SimpleDateFormat("MMM dd yyyy");
+		
 		for(CustInvoice invoice: invoices)
 		{
 			JsonNode j = Mapper.OM.createObjectNode();
@@ -87,7 +149,7 @@ public class CustomerController {
 			((ObjectNode) j).put("invc_total", invoice.getAmount());
 			((ObjectNode) j).put("invc_paid", invoice.getPaid());
 			((ObjectNode) j).put("invc_due", invoice.getBalance());
-			((ObjectNode) j).put("invc_duedate", ""+invoice.getDuedate());
+			((ObjectNode) j).put("invc_duedate", df.format(invoice.getDuedate()));
 			list.add(j);
 		}
 		

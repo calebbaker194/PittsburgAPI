@@ -51,6 +51,12 @@ public class ResultList extends ArrayList<HashMap<String,Object>>{
 			return null;
 	}
 	
+	
+	public HashMap<String,Object> getRow()
+	{
+		return get(currentRow);
+	}
+	
 	public Integer getInt(String field)
 	{
 		if(size()>0)

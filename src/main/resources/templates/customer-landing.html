@@ -11,6 +11,7 @@
     <script src="/js/sidebar.js"></script>
     <script src="/js/chartist.js"></script>
     <!-- <script src="/js/table.js"></script> -->
+    <link rel="stylesheet" th:href="@{/css/chartist.css}"/>
     <link rel="stylesheet" th:href="@{/css/bootstrap.css}"/>
     <link rel="stylesheet" th:href="@{/css/customer.css}"/>
     <link rel="stylesheet" th:href="@{/css/table.css}"/>
@@ -42,18 +43,25 @@
 	    				<th style="padding-right: 20px">Open Invoices</th><td width="120px" id="tdopencredit"></td>
 	    			</tr>
 	    			<tr>
-	    				<th style="padding-right: 20px">Overdue</th><td width="120px" id="tdoverdue"></td>
+	    				<th style="padding-right: 20px">Overdue</th><td class="overdue" width="120px" id="tdoverdue"></td>
 	    			</tr>
 	    			<tr>
 	    				<th style="padding-right: 20px">Remaining</th><td width="120px" id="tdremaining"></td>
 	    			</tr>
 	    		</table>
 	    	</div>
-	    	<div style="float: right ; padding-bottom: 20px">
-	    	Invoice Distribution
-	    		past due 
-	    		due this week
-	    		open
+	    	
+	    	<div style="width: 390px;float: right; margin-bottom: -140px; margin-top: -20px;">
+	    		<div style="float: left; margin-top: 55px">
+	    			<table>
+	    				<tr><th>Available:</th><td><div class="input-color"><div class="color-box" style="background-color: #118811;"></div></div></td></tr>
+	    				<tr><th>Open:     </th><td><div class="input-color"><div class="color-box" style="background-color: #3333aa;"></div></div></td></tr>
+	    				<tr><th>Overdue:  </th><td><div class="input-color"><div class="color-box" style="background-color: #d70206;"></div></div></td></tr>
+	    			</table>
+	    		</div>
+	    		<div style="float: right">
+	    			<div style="width: 250px; " class="ct-chart ct-square"></div>
+	    		</div>
 	    	</div>
 	    </div>
 		<table id="datatable" class="display table table-striped table-bordered table-resizable">
@@ -103,13 +111,27 @@ function setUpCreditTable(){
 		$('#tdoverdue').html('<span style="float : left">$</span><span style="float : right">'+creditData.overdue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")+'</span>');
 		$('#tdremaining').html('<span style="float : left">$</span><span style="float : right">'+creditData.availablecredit.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")+'</span>');
 		
+	
+		$(".overdue").removeClass( "overdue" );
+		
+		if(creditData.overdue > 100)
+		{	
+			$("#tdoverdue").addClass( "overdue" );
+		}
+		
+		var avaper = Math.round(creditData.availablecredit/creditData.creditlimit*100)
+		var openper = Math.round((creditData.opencredit-creditData.overdue)/creditData.creditlimit*100)
+		var overper = Math.round(creditData.overdue/creditData.creditlimit*100)
+		
+		
 		new Chartist.Pie('.ct-chart', {
+			labels: [avaper+'%',openper+'%',overper+'%'],
 			series: [creditData.availablecredit,creditData.opencredit-creditData.overdue,creditData.overdue]
 		},{
 			donut: true,
-			donutWidth: 60,
+			donutWidth: 40,
 			startAngle: 270,
-			total: creditData.creditlimit,
+			total: creditData.creditlimit * 2,
 			showLabel: true
 		});
 
@@ -160,10 +182,10 @@ function setUpCreditTable(){
 					"defaultContent": '<i class="fa fa-plus-square-o" style="font-size:24px"></i>'
 				},
 				{data: "invchead_invcnumber"},
-				{data: "invc_total", render: $.fn.dataTable.render.number(',','.',2, '$')},
-				{data: "invc_paid", render: $.fn.dataTable.render.number(',','.',2, '$')},
-				{data: "invc_due", render: $.fn.dataTable.render.number(',','.',2, '$')},
-				{data: "invc_duedate"}
+				{data: "invc_total", render: $.fn.dataTable.render.number(',','.',2, '$'),className: 'text-right'},
+				{data: "invc_paid", render: $.fn.dataTable.render.number(',','.',2, '$'),className: 'text-right'},
+				{data: "invc_due", render: $.fn.dataTable.render.number(',','.',2, '$'),className: 'text-right'},
+				{data: "invc_duedate",className: 'text-center'}
 			],
 			"iDisplayLength": 30
 			
@@ -331,20 +353,20 @@ $('#datatable tbody').on('click', 'td.details-control', function () {
 	    }
 	    else {
 	        tr.addClass('shown');
-	        
-	    	$.post("/customer/invoices/get-invoice-items",{"invchead_id" : row.data().DT_RowId.substring(4)},function(iidata) {
+	        console.log(row.data())
+	    	$.post("/customer/get-invoice-detail",{"invchead_invcnumber" : row.data().invchead_invcnumber},function(iidata) {
 	    		var children = '<table cellpadding="5" border ="0" width="100%">\n'
-	    		+"<tr> <th>Line Number</th> <th>Item#</th> <th>Qty Ord</th> <th>Qty billed</th> <th>Total</th> <th>Paid</th> <th>Balance</th></tr>";
+	    		+'<tr> <th>Invoice</th> <th>Sales Order</th> <th>Purchase Order</th> <th>Item</th> <th>Cust Item</th> <th align="center">Billed</th> <th align="center">Price</th></tr>';
 	    		for(var invcitem in iidata)
 	    		{
 	    			children += '<tr>\n'
-	    					  + '<td>' +iidata[invcitem].invcitem_linenumber+ '</td>\n'
-	    					  + '<td>' +iidata[invcitem].item_number+ '</td>\n'
-	    					  + '<td>' +iidata[invcitem].invcitem_ordered+ '</td>\n'
-	    					  + '<td>' +iidata[invcitem].invcitem_billed+ '</td>\n'
-	    					  + '<td>' +iidata[invcitem].invcitem_total+ '</td>\n'
-	    					  + '<td>' +iidata[invcitem].invcitem_paid+ '</td>\n'
-	    					  + '<td>' +iidata[invcitem].invcitem_balance+ '</td>\n'
+	    					  + '<td>' +iidata[invcitem].invcnum+ '</td>\n'
+	    					  + '<td>' +iidata[invcitem].sonum+ '</td>\n'
+	    					  + '<td>' +iidata[invcitem].ponum+ '</td>\n'
+	    					  + '<td>' +iidata[invcitem].itemnum+ '</td>\n'
+	    					  + '<td>' +iidata[invcitem].aliasnum+ '</td>\n'
+	    					  + '<td align="right">' +iidata[invcitem].billed+ '</td>\n'
+	    					  + '<td align="right"><div style="float:left">$</div><div style="float:right">' +iidata[invcitem].price.toFixed(2)+ '</div></td>\n'
 	    					  + '<tr>\n';
 	    			
 	    		}

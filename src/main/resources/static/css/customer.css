@@ -1,0 +1,22 @@
+.color-box {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    background-color: #ccc;
+    position: absolute;
+    left: 2px;
+    top: -3px;
+}
+
+.input-color {
+    position: relative;
+}
+.ct-label {
+	font-size: 12px;
+	font-weight : bold;
+	color: #fff;
+}
+
+.overdue{
+	color: red;
+}
